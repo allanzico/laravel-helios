@@ -2,12 +2,12 @@
 
 A lightweight, self-hosted monitoring tool for Laravel applications. Helios provides real-time monitoring of:
 
-- 📊 Request Performance
-- 📝 Application Logs
-- 🔄 Queued Jobs
-- ⏰ Scheduled Tasks
-- 🗃️ Database Queries
-- 🏥 Health Checks
+- Request Performance
+- Application Logs
+- Queued Jobs
+- Scheduled Tasks
+- Database Queries
+- Health Checks
 
 ## Features
 
