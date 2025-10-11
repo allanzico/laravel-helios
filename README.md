@@ -58,13 +58,7 @@ php artisan helios:sync-tasks
 Once installed, access the Helios dashboard at:
 
 ```
-http://your-app.test/helios
-```
-
-The API endpoints are available at:
-
-```
-http://your-app.test/helios/api/*
+http://localhost/helios
 ```
 
 ## Configuration
@@ -79,6 +73,9 @@ This creates `config/helios.php`:
 
 ```php
 return [
-    'log_path' => storage_path('logs/laravel.log'),
+    'log_path' => storage_path('logs'),
+    'error_tracking' => [
+        'enabled' => env('HELIOS_ERROR_TRACKING_ENABLED', true),
+    ],
 ];
 ```
