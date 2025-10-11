@@ -7,7 +7,7 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
-use Allanzico\LaravelHelios\Models\ScoutJob;
+use Allanzico\LaravelHelios\Models\HeliosJob;
 
 class JobEventListener
 {
@@ -16,7 +16,7 @@ class JobEventListener
      */
     public function handleJobProcessing(JobProcessing $event): void
     {
-        ScoutJob::create([
+        HeliosJob::create([
             'id' => $event->job->uuid(),
             'name' => $event->job->resolveName(),
             'status' => 'running',
@@ -40,16 +40,16 @@ class JobEventListener
     {
         $this->updateJobStatus($event->job->uuid(), 'failed', $event->exception);
     }
-    
+
     /**
      * Helper method to update the job's status.
      */
     private function updateJobStatus(string $uuid, string $status, ?\Throwable $exception = null): void
     {
-        $scoutJob = ScoutJob::find($uuid);
-        
-        if ($scoutJob) {
-            $scoutJob->update([
+        $heliosJob = HeliosJob::find($uuid);
+
+        if ($heliosJob) {
+            $heliosJob->update([
                 'status' => $status,
                 'exception' => $exception?->getMessage(),
                 'finished_at' => now(),

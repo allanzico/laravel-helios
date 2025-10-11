@@ -5,11 +5,11 @@ namespace Allanzico\LaravelHelios\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ScoutHealthCheckSetting extends Model
+class HeliosHealthCheckSetting extends Model
 {
     use HasUuids;
 
-    protected $table = 'scout_health_check_settings';
+    protected $table = 'helios_health_check_settings';
 
     public $timestamps = false;
 

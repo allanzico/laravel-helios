@@ -4,7 +4,7 @@ namespace Allanzico\LaravelHelios\Listeners;
 
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Schema;
-use Allanzico\LaravelHelios\Models\ScoutQuery;
+use Allanzico\LaravelHelios\Models\HeliosQuery;
 use Throwable;
 
 class QueryListener
@@ -26,7 +26,7 @@ class QueryListener
         try {
             self::$disabled = true;
 
-            if (!Schema::hasTable('scout_queries')) {
+            if (!Schema::hasTable('helios_queries')) {
                 return;
             }
 
@@ -36,11 +36,11 @@ class QueryListener
             }
 
             // We don't want to log queries that read from our own tables
-            if (str_contains($event->sql, '`scout_')) {
+            if (str_contains($event->sql, '`helios_')) {
                 return;
             }
 
-            ScoutQuery::create([
+            HeliosQuery::create([
                 'connection_name' => $event->connectionName,
                 'sql' => $event->sql,
                 'bindings' => $event->bindings,

@@ -7,13 +7,13 @@ use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Events\Dispatcher;
-use Allanzico\LaravelHelios\Models\ScoutScheduledTask;
+use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
 
 class ScheduledTaskEventListener
 {
     public function handleTaskStarting(ScheduledTaskStarting $event): void
     {
-        ScoutScheduledTask::create([
+        HeliosScheduledTask::create([
             'command' => $event->task->command,
             'expression' => $event->task->expression,
             'status' => 'starting',
@@ -41,11 +41,11 @@ class ScheduledTaskEventListener
     }
 
     /**
-     * Find the scout task for the given event.
+     * Find the helios task for the given event.
      */
-    private function findTask(Event $task): ?ScoutScheduledTask
+    private function findTask(Event $task): ?HeliosScheduledTask
     {
-        return ScoutScheduledTask::query()
+        return HeliosScheduledTask::query()
             ->where('command', $task->command)
             ->where('status', 'starting')
             ->latest('started_at')

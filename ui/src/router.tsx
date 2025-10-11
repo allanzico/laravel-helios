@@ -77,7 +77,7 @@ const routeTree = rootRoute.addChildren([
 // Create and export the router instance
 export const router = new Router({
     routeTree,
-    basepath: '/scout',
+    basepath: '/helios',
 });
 
 // Register the router's types for auto-completion and type-safety

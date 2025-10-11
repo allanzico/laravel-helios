@@ -5,11 +5,11 @@ namespace Allanzico\LaravelHelios\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ScoutError extends Model
+class HeliosError extends Model
 {
     use HasUuids;
 
-    protected $table = 'scout_errors';
+    protected $table = 'helios_errors';
 
     public $timestamps = false;
 

@@ -5,7 +5,7 @@ namespace Allanzico\LaravelHelios\Console;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
-use Allanzico\LaravelHelios\Models\ScoutTaskDefinition;
+use Allanzico\LaravelHelios\Models\HeliosTaskDefinition;
 
 class SyncTasks extends Command
 {
@@ -30,13 +30,13 @@ class SyncTasks extends Command
         })->filter()->keyBy('command');
 
         // Remove tasks from DB that are no longer in the Kernel
-        ScoutTaskDefinition::query()
+        HeliosTaskDefinition::query()
             ->whereNotIn('command', $definedTasks->keys())
             ->delete();
 
         // Update or create tasks from the Kernel
         foreach ($definedTasks as $task) {
-            ScoutTaskDefinition::updateOrCreate(
+            HeliosTaskDefinition::updateOrCreate(
                 ['command' => $task['command']],
                 $task
             );

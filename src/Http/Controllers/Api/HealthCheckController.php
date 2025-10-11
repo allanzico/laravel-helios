@@ -5,7 +5,7 @@ namespace Allanzico\LaravelHelios\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Allanzico\LaravelHelios\Models\ScoutHealthCheckSetting;
+use Allanzico\LaravelHelios\Models\HeliosHealthCheckSetting;
 use Allanzico\LaravelHelios\Services\HealthCheckService;
 
 class HealthCheckController extends Controller
@@ -36,27 +36,27 @@ public function available(): JsonResponse
 
 public function settings(): JsonResponse
 {
-    $settings = ScoutHealthCheckSetting::all()->toArray();
+    $settings = HeliosHealthCheckSetting::all()->toArray();
 
     return response()->json([
-        'settings' => array_values($settings) 
+        'settings' => array_values($settings)
     ]);
 }
 
     public function updateSettings(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'enabled_checks' => 'array', 
+            'enabled_checks' => 'array',
             'enabled_checks.*' => 'string',
         ]);
 
         // Clear all settings first
-        ScoutHealthCheckSetting::query()->delete();
+        HeliosHealthCheckSetting::query()->delete();
 
         // Insert new settings only if there are enabled checks
         if (!empty($validated['enabled_checks'])) {
             foreach ($validated['enabled_checks'] as $checkClass) {
-                ScoutHealthCheckSetting::create([
+                HeliosHealthCheckSetting::create([
                     'check_class' => $checkClass,
                     'enabled' => true,
                 ]);

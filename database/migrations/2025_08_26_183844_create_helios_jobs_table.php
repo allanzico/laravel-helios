@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scout_jobs', function (Blueprint $table) {
+        Schema::create('helios_jobs', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
             $table->string('status'); // e.g., running, processed, failed
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scout_jobs');
+        Schema::dropIfExists('helios_jobs');
     }
 };

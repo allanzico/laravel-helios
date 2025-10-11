@@ -1,7 +1,7 @@
 import { LogFile, LogContent } from './types/index'; 
 
 export const fetchLogs = async (): Promise<LogFile[]> => {
-  const response = await fetch('/scout/api/logs');
+  const response = await fetch('/helios/api/logs');
 
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -12,7 +12,7 @@ export const fetchLogs = async (): Promise<LogFile[]> => {
 };
 
 export const fetchLogContent = async (fileName: string): Promise<LogContent> => {
-  const response = await fetch(`/scout/api/logs/${fileName}`);
+  const response = await fetch(`/helios/api/logs/${fileName}`);
   
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -25,7 +25,7 @@ export const fetchLogContent = async (fileName: string): Promise<LogContent> => 
 export const clearLogFile = async (fileName: string): Promise<any> => {
   const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
 
-  const response = await fetch(`/scout/api/logs/${fileName}`, {
+  const response = await fetch(`/helios/api/logs/${fileName}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',

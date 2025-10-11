@@ -35,7 +35,7 @@ export function ScheduledTaskIndex() {
     setOpenOutputs(prev => new Set(prev).add(signature));
 
     try {
-      const response = await fetch(`/scout/api/scheduled-tasks/run?signature=${encodeURIComponent(signature)}`);
+      const response = await fetch(`/helios/api/scheduled-tasks/run?signature=${encodeURIComponent(signature)}`);
 
       if (!response.ok) {
         const errorText = await response.text();

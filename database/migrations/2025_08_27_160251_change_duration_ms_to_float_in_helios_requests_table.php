@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('scout_requests', function (Blueprint $table) {
+        Schema::table('helios_requests', function (Blueprint $table) {
             $table->float('duration_ms')->change();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('scout_requests', function (Blueprint $table) {
+        Schema::table('helios_requests', function (Blueprint $table) {
             $table->integer('duration_ms')->change();
         });
     }

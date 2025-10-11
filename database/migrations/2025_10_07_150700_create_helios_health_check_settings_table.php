@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scout_health_check_settings', function (Blueprint $table) {
+        Schema::create('helios_health_check_settings', function (Blueprint $table) {
              $table->uuid('id')->primary();
             $table->string('check_class')->unique();
             $table->boolean('enabled')->default(true);
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scout_health_check_settings');
+        Schema::dropIfExists('helios_health_check_settings');
     }
 };

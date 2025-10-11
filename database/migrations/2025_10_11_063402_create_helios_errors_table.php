@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('scout_errors', function (Blueprint $table) {
+        Schema::create('helios_errors', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('hash')->unique(); // For grouping similar errors
             $table->string('type'); // Exception class name
@@ -40,6 +40,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('scout_errors');
+        Schema::dropIfExists('helios_errors');
     }
 };

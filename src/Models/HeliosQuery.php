@@ -5,11 +5,11 @@ namespace Allanzico\LaravelHelios\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ScoutQuery extends Model
+class HeliosQuery extends Model
 {
     use HasUuids;
 
-    protected $table = 'scout_queries';
+    protected $table = 'helios_queries';
 
     const UPDATED_AT = null;
 

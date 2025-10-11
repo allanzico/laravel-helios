@@ -6,7 +6,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Allanzico\LaravelHelios\Services\ErrorHandler;
 use Throwable;
 
-class ScoutExceptionHandler extends ExceptionHandler
+class HeliosExceptionHandler extends ExceptionHandler
 {
     /**
      * Report or log an exception.
@@ -16,8 +16,8 @@ class ScoutExceptionHandler extends ExceptionHandler
         // Call parent to maintain Laravel's default error handling
         parent::report($exception);
 
-        // Track the error in Scout if it's reportable
-        if ($this->shouldReport($exception) && config('scout.error_tracking.enabled', true)) {
+        // Track the error in Helios if it's reportable
+        if ($this->shouldReport($exception) && config('helios.error_tracking.enabled', true)) {
             app(ErrorHandler::class)->report($exception);
         }
     }

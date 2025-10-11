@@ -13,10 +13,10 @@ class PurgeController extends Controller
     {
         $validated = $request->validate([
             'table' => ['required', 'string', Rule::in([
-                'scout_jobs',
-                'scout_requests',
-                'scout_queries',
-                'scout_scheduled_tasks',
+                'helios_jobs',
+                'helios_requests',
+                'helios_queries',
+                'helios_scheduled_tasks',
             ])]
         ]);
 

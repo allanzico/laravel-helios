@@ -89,7 +89,7 @@ export function RequestIndex() {
                   <AlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4" /> Purge</Button></AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete all recorded request history.</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => purgeMutation.mutate('scout_requests')}>Continue</AlertDialogAction></AlertDialogFooter>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => purgeMutation.mutate('helios_requests')}>Continue</AlertDialogAction></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
             </div>

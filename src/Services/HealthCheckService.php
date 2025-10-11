@@ -13,7 +13,7 @@ use Allanzico\LaravelHelios\HealthChecks\Checks\QueueHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\RedisHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\SchedulerHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\StorageHealthCheck;
-use Allanzico\LaravelHelios\Models\ScoutHealthCheckSetting;
+use Allanzico\LaravelHelios\Models\HeliosHealthCheckSetting;
 
 class HealthCheckService
 {
@@ -88,7 +88,7 @@ class HealthCheckService
 
     public function runAllChecks(): array
     {
-        $enabledChecks = ScoutHealthCheckSetting::where('enabled', true)
+        $enabledChecks = HeliosHealthCheckSetting::where('enabled', true)
             ->pluck('check_class')
             ->toArray();
 

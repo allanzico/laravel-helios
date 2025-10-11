@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scout_queries', function (Blueprint $table) {
+        Schema::create('helios_task_definitions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('connection_name');
-            $table->longText('sql');
-            $table->json('bindings')->nullable();
-            $table->float('time_ms');
-            $table->timestamp('created_at');
+            $table->string('command')->unique();
+            $table->string('expression');
+            $table->text('description')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scout_queries');
+        Schema::dropIfExists('helios_task_definitions');
     }
 };

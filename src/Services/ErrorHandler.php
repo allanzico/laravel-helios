@@ -3,7 +3,7 @@
 namespace Allanzico\LaravelHelios\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Allanzico\LaravelHelios\Models\ScoutError;
+use Allanzico\LaravelHelios\Models\HeliosError;
 use Throwable;
 
 class ErrorHandler
@@ -15,7 +15,7 @@ class ErrorHandler
             $hash = $this->generateErrorHash($exception);
 
             // Check if this error already exists
-            $existingError = ScoutError::where('hash', $hash)->first();
+            $existingError = HeliosError::where('hash', $hash)->first();
 
             if ($existingError) {
                 // Update existing error
@@ -26,7 +26,7 @@ class ErrorHandler
                 ]);
             } else {
                 // Create new error record
-                ScoutError::create([
+                HeliosError::create([
                     'hash' => $hash,
                     'type' => get_class($exception),
                     'message' => $exception->getMessage(),
@@ -48,7 +48,7 @@ class ErrorHandler
         } catch (\Throwable $e) {
             // Don't let error tracking cause issues
             // Silently fail or log to Laravel's default logger
-            logger()->error('Scout error tracking failed: ' . $e->getMessage());
+            logger()->error('Helios error tracking failed: ' . $e->getMessage());
         }
     }
 

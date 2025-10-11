@@ -86,7 +86,7 @@ export function QueryIndex() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => purgeMutation.mutate('scout_queries')}>Continue</AlertDialogAction>
+              <AlertDialogAction onClick={() => purgeMutation.mutate('helios_queries')}>Continue</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

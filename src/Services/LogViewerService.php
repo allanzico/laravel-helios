@@ -8,7 +8,7 @@ class LogViewerService
 {
     public function getAllLogs(): array
     {
-        $logPath = config('scout.log_path');
+        $logPath = config('helios.log_path');
 
         if (!File::exists($logPath)) {
             return [];
@@ -41,7 +41,7 @@ class LogViewerService
      */
     public function getLogContent(string $fileName): ?string
     {
-        $filePath = config('scout.log_path') . '/' . $fileName;
+        $filePath = config('helios.log_path') . '/' . $fileName;
 
         if (!File::exists($filePath)) {
             return null;

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scout_requests', function (Blueprint $table) {
+        Schema::create('helios_requests', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('method', 10);
             $table->text('uri');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scout_requests');
+        Schema::dropIfExists('helios_requests');
     }
 };

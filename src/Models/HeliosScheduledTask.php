@@ -5,28 +5,29 @@ namespace Allanzico\LaravelHelios\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ScoutJob extends Model
+class HeliosScheduledTask extends Model
 {
     use HasUuids;
 
-    protected $table = 'scout_jobs';
+    protected $table = 'helios_scheduled_tasks';
 
     public $timestamps = false;
 
     protected $fillable = [
         'id',
-        'name',
+        'command',
+        'expression',
         'status',
-        'payload',
-        'exception',
+        'output',
         'started_at',
         'finished_at',
+        'runtime_ms',
+        'triggered_by'
     ];
 
     protected function casts(): array
     {
         return [
-            'payload' => 'json',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
         ];

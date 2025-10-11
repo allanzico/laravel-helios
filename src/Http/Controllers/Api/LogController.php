@@ -43,7 +43,7 @@ class LogController extends Controller
         if (str_contains($fileName, '..') || str_contains($fileName, '/')) {
             abort(400, 'Invalid filename.');
         }
-        $filePath = config('scout.log_path') . '/' . $fileName;
+        $filePath = config('helios.log_path') . '/' . $fileName;
 
         if (!File::exists($filePath)) {
             abort(404, 'Log file not found.');

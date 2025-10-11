@@ -8,8 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Allanzico\LaravelHelios\Models\ScoutScheduledTask;
-use Allanzico\LaravelHelios\Models\ScoutTaskDefinition;
+use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
+use Allanzico\LaravelHelios\Models\HeliosTaskDefinition;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
 
@@ -17,11 +17,11 @@ class ScheduledTaskController extends Controller
 {
 public function index(): JsonResponse
 {
-    $definedTasks = ScoutTaskDefinition::all()->map(function ($taskDefinition) {
+    $definedTasks = HeliosTaskDefinition::all()->map(function ($taskDefinition) {
         $signature = $this->extractCommandSignature($taskDefinition->command);
-        
+
         // Get the latest COMPLETED run for THIS specific command
-        $latestRun = ScoutScheduledTask::query()
+        $latestRun = HeliosScheduledTask::query()
             ->where('command', $taskDefinition->command)
             ->whereNotNull('finished_at')
             ->orderBy('finished_at', 'desc')
@@ -64,7 +64,7 @@ public function index(): JsonResponse
         $signature = $validated['signature'];
 
         // Find the task definition by matching the signature
-        $taskDefinition = ScoutTaskDefinition::all()->first(function ($task) use ($signature) {
+        $taskDefinition = HeliosTaskDefinition::all()->first(function ($task) use ($signature) {
             return $this->extractCommandSignature($task->command) === $signature;
         });
 
@@ -74,7 +74,7 @@ public function index(): JsonResponse
 
         return new StreamedResponse(function () use ($signature, $taskDefinition) {
             // Create a log entry for this manual run
-            $taskLog = ScoutScheduledTask::create([
+            $taskLog = HeliosScheduledTask::create([
                 'command' => $taskDefinition->command,
                 'expression' => $taskDefinition->expression,
                 'status' => 'starting',

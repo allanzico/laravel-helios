@@ -1,7 +1,7 @@
 export const purgeTable = async (table: string): Promise<void> => {
   const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
 
-  const response = await fetch('/scout/api/purge', {
+  const response = await fetch('/helios/api/purge', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

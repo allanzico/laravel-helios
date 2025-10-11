@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('scout_scheduled_tasks', function (Blueprint $table) {
+        Schema::create('helios_scheduled_tasks', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('command');
             $table->string('expression')->nullable(); // e.g., '* * * * *'
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scout_scheduled_tasks');
+        Schema::dropIfExists('helios_scheduled_tasks');
     }
 };

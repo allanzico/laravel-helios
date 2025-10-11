@@ -5,13 +5,13 @@ namespace Allanzico\LaravelHelios\Http\Controllers\Api;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Allanzico\LaravelHelios\Models\ScoutError;
+use Allanzico\LaravelHelios\Models\HeliosError;
 
 class ErrorController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = ScoutError::query();
+        $query = HeliosError::query();
 
         // Filter by status
         if ($request->has('status')) {
@@ -46,14 +46,14 @@ class ErrorController extends Controller
 
     public function show(string $id): JsonResponse
     {
-        $error = ScoutError::findOrFail($id);
+        $error = HeliosError::findOrFail($id);
 
         return response()->json($error);
     }
 
     public function resolve(Request $request, string $id): JsonResponse
     {
-        $error = ScoutError::findOrFail($id);
+        $error = HeliosError::findOrFail($id);
         $error->markAsResolved($request->user()?->id);
 
         return response()->json([
@@ -64,7 +64,7 @@ class ErrorController extends Controller
 
     public function ignore(string $id): JsonResponse
     {
-        $error = ScoutError::findOrFail($id);
+        $error = HeliosError::findOrFail($id);
         $error->markAsIgnored();
 
         return response()->json([
@@ -75,7 +75,7 @@ class ErrorController extends Controller
 
     public function unresolve(string $id): JsonResponse
     {
-        $error = ScoutError::findOrFail($id);
+        $error = HeliosError::findOrFail($id);
         $error->markAsUnresolved();
 
         return response()->json([
@@ -86,7 +86,7 @@ class ErrorController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $error = ScoutError::findOrFail($id);
+        $error = HeliosError::findOrFail($id);
         $error->delete();
 
         return response()->json([
@@ -97,12 +97,12 @@ class ErrorController extends Controller
     public function stats(): JsonResponse
     {
         $stats = [
-            'total_errors' => ScoutError::count(),
-            'unresolved' => ScoutError::where('status', 'unresolved')->count(),
-            'resolved' => ScoutError::where('status', 'resolved')->count(),
-            'ignored' => ScoutError::where('status', 'ignored')->count(),
-            'last_24h' => ScoutError::where('last_seen_at', '>=', now()->subDay())->count(),
-            'critical' => ScoutError::where('level', 'critical')->where('status', 'unresolved')->count(),
+            'total_errors' => HeliosError::count(),
+            'unresolved' => HeliosError::where('status', 'unresolved')->count(),
+            'resolved' => HeliosError::where('status', 'resolved')->count(),
+            'ignored' => HeliosError::where('status', 'ignored')->count(),
+            'last_24h' => HeliosError::where('last_seen_at', '>=', now()->subDay())->count(),
+            'critical' => HeliosError::where('level', 'critical')->where('status', 'unresolved')->count(),
         ];
 
         return response()->json($stats);
