@@ -1,15 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Scout\Scout\Http\Controllers\Api\DashboardController;
-use Scout\Scout\Http\Controllers\Api\ErrorController;
-use Scout\Scout\Http\Controllers\Api\JobController;
-use Scout\Scout\Http\Controllers\Api\LogController;
-use Scout\Scout\Http\Controllers\Api\PurgeController;
-use Scout\Scout\Http\Controllers\Api\QueryController;
-use Scout\Scout\Http\Controllers\Api\RequestController;
-use Scout\Scout\Http\Controllers\Api\ScheduledTaskController;
-use Scout\Scout\Http\Controllers\Api\HealthCheckController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\DashboardController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\ErrorController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\JobController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\LogController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\PurgeController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\QueryController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\RequestController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\ScheduledTaskController;
+use Allanzico\LaravelHelios\Http\Controllers\Api\HealthCheckController;
 
 // Log routes
 Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
