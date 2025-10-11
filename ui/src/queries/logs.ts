@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { fetchLogs, fetchLogContent, clearLogFile } from '../api/logs';
+import { fetchLogs, fetchLogContent, clearLogFile } from '@/api/logs';
 
 export const useLogsQuery = () => {
   return useQuery({

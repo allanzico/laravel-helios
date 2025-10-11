@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useRequestsPerMinuteQuery } from '../../queries/charts';
+import { useRequestsPerMinuteQuery } from '@/queries/charts';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { formatHex } from 'culori';
 

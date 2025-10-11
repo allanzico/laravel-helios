@@ -1,5 +1,5 @@
 import { useQuery, useMutation, UseQueryOptions } from '@tanstack/react-query';
-import { fetchHealthChecks, fetchAvailableHealthChecks, fetchHealthCheckSettings, updateHealthCheckSettings } from '../api/health';
+import { fetchHealthChecks, fetchAvailableHealthChecks, fetchHealthCheckSettings, updateHealthCheckSettings } from '@/api/health';
 
 interface HealthCheck {
   check: string;

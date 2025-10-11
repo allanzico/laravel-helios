@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router';
-import { Sheet, SheetContent, SheetTrigger } from '../../components/ui/sheet';
-import { Button } from '../../components/ui/button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   PanelLeft,
   FileText,

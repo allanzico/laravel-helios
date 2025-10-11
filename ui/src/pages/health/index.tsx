@@ -1,8 +1,8 @@
 
-import { useHealthChecksQuery } from '../../queries/health';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import { Button } from '../../components/ui/button';
+import { useHealthChecksQuery } from '@/queries/health';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, AlertTriangle, Skull, RefreshCw, Settings } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from '@tanstack/react-router';

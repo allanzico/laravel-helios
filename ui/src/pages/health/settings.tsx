@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAvailableHealthChecksQuery, useHealthCheckSettingsQuery, useUpdateHealthCheckSettingsMutation } from '../../queries/health';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Checkbox } from '../../components/ui/checkbox';
+import { useAvailableHealthChecksQuery, useHealthCheckSettingsQuery, useUpdateHealthCheckSettingsMutation } from '@/queries/health';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowLeft, Save } from 'lucide-react';
 import { Link } from '@tanstack/react-router';
 import { useQueryClient } from '@tanstack/react-query';

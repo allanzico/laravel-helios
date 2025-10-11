@@ -1,13 +1,13 @@
 import { Fragment, useState } from 'react';
-import { useDefinedTasksQuery } from '../../queries/tasks.ts';
+import { useDefinedTasksQuery } from '@/queries/tasks.ts';
 import { useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Button } from '../../components/ui/button';
-import { StatusBadge } from '../../components/app/status-badge.tsx';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { StatusBadge } from '@/components/app/status-badge.tsx';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { PlayCircle, ChevronDown, Clock, Terminal, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
-import { ScheduledTask } from '../../api/types';
+import { ScheduledTask } from '@/api/types';
 
 export function ScheduledTaskIndex() {
   const queryClient = useQueryClient();

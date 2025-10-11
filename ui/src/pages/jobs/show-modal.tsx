@@ -1,11 +1,11 @@
-import { Job } from '../../api/types';
+import { Job } from '@/api/types';
 import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../components/ui/dialog';
-import { StatusBadge } from '../../components/app/status-badge';
+} from '@/components/ui/dialog';
+import { StatusBadge } from '@/components/app/status-badge';
 
 interface JobShowModalProps {
   job: Job | null;

@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { useQueriesQuery } from '../../queries/queries.ts';
-import { usePurgeMutation } from '../../queries/purge.ts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Pagination } from '../../components/ui/pagination';
-import { Button } from '../../components/ui/button';
+import { useQueriesQuery } from '@/queries/queries.ts';
+import { usePurgeMutation } from '@/queries/purge.ts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../../components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import {
   useReactTable,
   getCoreRowModel,
@@ -23,7 +23,7 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { Query } from '../../api/types';
+import { Query } from '@/api/types';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 

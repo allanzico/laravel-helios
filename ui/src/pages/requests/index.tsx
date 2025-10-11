@@ -1,14 +1,14 @@
 import { useState, useMemo } from 'react';
-import { useRequestsQuery } from '../../queries/requests.ts';
-import { usePurgeMutation } from '../../queries/purge.ts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Pagination } from '../../components/ui/pagination';
-import { Button } from '../../components/ui/button';
-import { Dialog } from '../../components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../components/ui/alert-dialog';
+import { useRequestsQuery } from '@/queries/requests.ts';
+import { usePurgeMutation } from '@/queries/purge.ts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { RequestShowModal } from './show-modal.tsx';
-import { RequestType } from '../../api/types';
+import { RequestType } from '@/api/types';
 import { RefreshCw, Trash2 } from 'lucide-react';
 import {
   useReactTable,
@@ -17,8 +17,8 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { StatusCodeBadge } from '../../components/app/status-code-badge.tsx';
-import { Badge } from '../../components/ui/badge';
+import { StatusCodeBadge } from '@/components/app/status-code-badge.tsx';
+import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 
 const columns: ColumnDef<RequestType>[] = [

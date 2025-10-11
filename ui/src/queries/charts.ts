@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchRequestsPerMinute } from '../api/charts.ts';
+import { fetchRequestsPerMinute } from '@/api/charts.ts';
 
 export const useRequestsPerMinuteQuery = () => {
   return useQuery({

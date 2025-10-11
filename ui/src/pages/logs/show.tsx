@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useParams } from '@tanstack/react-router';
-import { useLogContentQuery, useClearLogMutation } from '../../queries/logs';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { LogEntry } from '../../components/app/log-entry.tsx';
+import { useLogContentQuery, useClearLogMutation } from '@/queries/logs';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { LogEntry } from '@/components/app/log-entry.tsx';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,9 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '../../components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import { Trash2 } from 'lucide-react';
-import { getButtonStatusVariant } from '../../lib/utils';
+import { getButtonStatusVariant } from '@/lib/utils';
 
 const LOG_LEVELS = ['ERROR', 'WARNING', 'INFO', 'DEBUG'];
 

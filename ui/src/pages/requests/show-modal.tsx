@@ -1,11 +1,11 @@
-import { RequestType } from '../../api/types';
+import { RequestType } from '@/api/types';
 import {
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../components/ui/dialog';
-import { StatusCodeBadge } from '../../components/app/status-code-badge';
+} from '@/components/ui/dialog';
+import { StatusCodeBadge } from '@/components/app/status-code-badge';
 
 interface RequestShowModalProps {
   request: RequestType | null;

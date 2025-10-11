@@ -1,10 +1,10 @@
-import { useDashboardStatsQuery } from '../../queries/dashboard';
-import { StatCard } from '../../components/app/stat-card';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { StatusBadge } from '../../components/app/status-badge.tsx';
+import { useDashboardStatsQuery } from '@/queries/dashboard';
+import { StatCard } from '@/components/app/stat-card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { StatusBadge } from '@/components/app/status-badge.tsx';
 import { AlertTriangle, Clock, ServerCrash, Zap } from 'lucide-react';
-import { RequestsChart } from '../../components/app/requests-chart.tsx';
+import { RequestsChart } from '@/components/app/requests-chart.tsx';
 
 export function DashboardIndex() {
   const { data, isLoading, isError } = useDashboardStatsQuery();

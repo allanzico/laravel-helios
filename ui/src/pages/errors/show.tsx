@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { useErrorQuery, useResolveErrorMutation, useIgnoreErrorMutation, useUnresolveErrorMutation, useDeleteErrorMutation } from '../../queries/errors';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Badge } from '../../components/ui/badge';
-import { Button } from '../../components/ui/button';
+import { useErrorQuery, useResolveErrorMutation, useIgnoreErrorMutation, useUnresolveErrorMutation, useDeleteErrorMutation } from '@/queries/errors';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, EyeOff, RotateCcw, Trash2, AlertCircle, Clock, User, Globe, Monitor } from 'lucide-react';
 import { format } from 'date-fns';
 

@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
-import { useJobsQuery } from '../../queries/jobs.ts';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table';
-import { Pagination } from '../../components/ui/pagination';
-import { Button } from '../../components/ui/button';
-import { Dialog } from '../../components/ui/dialog';
+import { useJobsQuery } from '@/queries/jobs.ts';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import { JobShowModal } from './show-modal.tsx';
 import { formatDistanceToNow } from 'date-fns';
-import { Job } from '../../api/types';
+import { Job } from '@/api/types';
 import { RefreshCw } from 'lucide-react';
 import {
   useReactTable,
@@ -16,7 +16,7 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table';
-import { StatusBadge } from '../../components/app/status-badge.tsx';
+import { StatusBadge } from '@/components/app/status-badge.tsx';
 
 const columns: ColumnDef<Job>[] = [
   {

@@ -4,8 +4,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from '../../components/ui/dialog';
-import { StatusBadge } from '../../components/app/status-badge';
+} from '@/components/ui/dialog';
+import { StatusBadge } from '@/components/app/status-badge';
 
 interface TaskShowModalProps {
   task: ScheduledTask | null;

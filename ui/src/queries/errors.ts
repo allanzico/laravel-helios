@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchErrors, fetchErrorStats, fetchError, resolveError, ignoreError, unresolveError, deleteError } from '../api/errors';
+import { fetchErrors, fetchErrorStats, fetchError, resolveError, ignoreError, unresolveError, deleteError } from '@/api/errors';
 
 export const useErrorsQuery = (filters: any = {}) => {
   return useQuery({
