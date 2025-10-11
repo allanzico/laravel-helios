@@ -1,0 +1,66 @@
+# Laravel & PHP
+/vendor/
+/node_modules/
+/public/hot
+/public/storage
+/storage/app/public
+/storage/framework/
+/storage/logs/
+/.env
+/.env.*
+/.phpunit.result.cache
+/.php_cs.cache
+
+# Composer
+/composer.phar
+
+# Build & cache
+/public/build/
+/public/mix-manifest.json
+/storage/*.key
+
+# Vite / Node / frontend
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+/pnpm-debug.log*
+/package-lock.json
+/.pnp
+/.pnp.js
+
+# IDEs and editors
+.vscode/
+.idea/
+.sublime-project
+.sublime-workspace
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Logs
+/storage/logs/*.log
+/storage/logs/*.log.*
+
+# Tests / coverage
+/coverage/
+/phpunit.xml.cache
+
+# dotenv local environment files
+/.env.local
+/.env.testing
+
+# Ignore build outputs from the ui frontend
+/ui/dist/
+/ui/build/
+
+# Misc
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Keep any intentionally committed files in storage or public by adding an explicit allow rule in future
