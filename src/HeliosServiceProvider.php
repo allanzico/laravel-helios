@@ -3,11 +3,13 @@
 namespace Allanzico\LaravelHelios;
 
 use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Allanzico\LaravelHelios\Console\SyncTasks;
 use Allanzico\LaravelHelios\Http\Middleware\TrackRequestPerformance;
 use Allanzico\LaravelHelios\Providers\EventServiceProvider;
+use Allanzico\LaravelHelios\Support\Vite;
 
 class HeliosServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,9 @@ class HeliosServiceProvider extends ServiceProvider
      */
     public function boot(Kernel $kernel): void
     {
+        // Register Blade directive for Helios assets
+        $this->registerBladeDirectives();
+
         // Load migrations automatically
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
@@ -29,21 +34,13 @@ class HeliosServiceProvider extends ServiceProvider
             __DIR__.'/../config/helios.php' => config_path('helios.php'),
         ], 'helios-config');
 
-        // Publish public assets (built frontend files)
-        $this->publishes([
-            __DIR__.'/../public' => public_path('vendor/helios'),
-        ], 'helios-assets');
-
-        // Publish views
+        // Publish views (optional, for customization)
         $this->publishes([
             __DIR__.'/../resources/views' => resource_path('views/vendor/helios'),
         ], 'helios-views');
 
         // Load views
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'helios');
-
-        // Load public assets route (serve directly from package)
-        $this->loadPackageAssets();
 
         $kernel->appendMiddlewareToGroup('web', TrackRequestPerformance::class);
         
@@ -69,32 +66,6 @@ class HeliosServiceProvider extends ServiceProvider
              ->group(function () {
                  $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
              });
-    }
-
-    /**
-     * Load package assets - serve directly from package directory.
-     */
-    protected function loadPackageAssets(): void
-    {
-        Route::get('vendor/helios/assets/{file}', function ($file) {
-            $path = __DIR__.'/../public/assets/'.$file;
-
-            if (!file_exists($path)) {
-                abort(404);
-            }
-
-            $mimeType = match (pathinfo($file, PATHINFO_EXTENSION)) {
-                'js' => 'application/javascript',
-                'css' => 'text/css',
-                'json' => 'application/json',
-                default => 'application/octet-stream',
-            };
-
-            return response()->file($path, [
-                'Content-Type' => $mimeType,
-                'Cache-Control' => 'public, max-age=31536000',
-            ]);
-        })->where('file', '.*')->name('helios.assets');
     }
 
     /**
@@ -135,6 +106,16 @@ class HeliosServiceProvider extends ServiceProvider
          // Register ErrorHandler as singleton
         $this->app->singleton(\Allanzico\LaravelHelios\Services\ErrorHandler::class, function ($app) {
             return new \Allanzico\LaravelHelios\Services\ErrorHandler();
+        });
+    }
+
+    /**
+     * Register Blade directives.
+     */
+    protected function registerBladeDirectives(): void
+    {
+        Blade::directive('heliosAssets', function () {
+            return "<?php echo \Allanzico\LaravelHelios\Support\Vite::assets(); ?>";
         });
     }
 }

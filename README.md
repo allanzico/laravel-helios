@@ -2,13 +2,13 @@
 
 A lightweight, self-hosted monitoring tool for Laravel applications. Helios provides real-time monitoring of:
 
-- 📊 Request Performance
-- 📝 Application Logs
-- ⚙️ Queued Jobs
-- ⏰ Scheduled Tasks
-- 🗄️ Database Queries
-- 🏥 Health Checks
-- 🐛 Error Tracking
+- Request Performance
+- Application Logs
+- Queued Jobs
+- Scheduled Tasks
+- Database Queries
+- Health Checks
+- Error Tracking
 
 ## Features
 
@@ -60,7 +60,7 @@ php artisan helios:sync-tasks
 
 Run this command whenever you add or modify scheduled tasks in your application.
 
-That's it! The frontend assets are served directly from the package, so no publishing step is required.
+**That's it!** Frontend assets are automatically inlined (similar to Laravel Horizon), so no asset publishing is required.
 
 ## Usage
 
@@ -88,23 +88,22 @@ http://localhost:8000/helios
 
 ## Configuration
 
-### Publishing Assets (Optional)
+### Publishing Resources (Optional)
 
-The package serves assets directly from the vendor directory, so publishing is not required. However, if you want to customize the frontend or host assets from your public directory:
+You can publish configuration and other resources if needed for customization:
 
 ```bash
-# Publish frontend assets to public/vendor/helios
-php artisan vendor:publish --tag=helios-assets --force
-
-# Publish views to resources/views/vendor/helios
-php artisan vendor:publish --tag=helios-views
-
 # Publish config file
 php artisan vendor:publish --tag=helios-config
+
+# Publish views (for customization)
+php artisan vendor:publish --tag=helios-views
 
 # Publish migrations (if you want to modify them)
 php artisan vendor:publish --tag=helios-migrations
 ```
+
+**Note:** Asset publishing is not required. All CSS and JavaScript are automatically inlined in the HTML, similar to how Laravel Horizon works.
 
 ### Configuration File
 
@@ -167,3 +166,85 @@ HeliosRequest::where('created_at', '<', now()->subDays(7))->delete();
 HeliosQuery::where('created_at', '<', now()->subDays(7))->delete();
 HeliosJob::where('started_at', '<', now()->subDays(7))->delete();
 ```
+
+## Technical Architecture
+
+Helios uses a modern tech stack:
+
+### Backend
+- **Laravel Package**: Middleware for request tracking, event listeners for job monitoring
+- **Database**: All monitoring data stored in your application's database
+- **Service Provider**: Auto-discovery with automatic registration
+
+### Frontend
+- **React 18**: Modern React with hooks
+- **TanStack Router**: File-based routing with type safety
+- **TanStack Query**: Efficient data fetching and caching
+- **Tailwind CSS v3**: Utility-first styling
+- **Recharts**: Data visualization
+- **Vite**: Fast build tool and dev server
+
+### Asset Management
+The package uses **inline asset loading** (inspired by Laravel Horizon). The `@heliosAssets` Blade directive reads the built CSS and JavaScript files from the package directory and embeds them directly into the HTML as `<style>` and `<script>` tags. This approach:
+
+- **Eliminates the need for asset publishing** - No `vendor:publish` required
+- **Simplifies updates** - `composer update` automatically updates frontend code
+- **Reduces HTTP requests** - Assets are served with the initial HTML response
+- **Works in any environment** - No public directory configuration needed
+- **Provides better caching** - The entire page can be cached as one unit
+
+## Building from Source
+
+If you want to modify the frontend or contribute to development:
+
+### Prerequisites
+- Node.js 18+ and npm
+- PHP 8.2+
+- Composer
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/allanzico/laravel-helios.git
+cd laravel-helios
+
+# Install PHP dependencies
+composer install
+
+# Install frontend dependencies
+cd ui
+npm install
+
+# Build the frontend
+npm run build
+
+# The built assets will be in the public/ directory
+```
+
+### Development
+
+For frontend development with hot module replacement:
+
+```bash
+# Start the Vite dev server (from the ui directory)
+cd ui
+npm run dev
+
+# In another terminal, start your Laravel app
+php artisan serve
+```
+
+The Vite dev server runs on `http://localhost:5173` and proxies API requests to `http://localhost:8000`.
+
+### Building for Production
+
+```bash
+cd ui
+npm run build
+```
+
+This creates optimized production assets in the `public/` directory with:
+- Minified JavaScript and CSS
+- Content hashing for cache busting
+- Vite manifest for dynamic asset loading

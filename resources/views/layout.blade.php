@@ -12,8 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
 
     {{-- Load built Vite assets from package public directory --}}
-    <script type="module" crossorigin src="{{ asset('vendor/helios/assets/index-BHllPVZc.js') }}"></script>
-    <link rel="stylesheet" crossorigin href="{{ asset('vendor/helios/assets/index-CyKVXIEQ.css') }}">
+    @heliosAssets
 </head>
 <body class="bg-gray-100 dark:bg-gray-900">
     <div id="root"></div>

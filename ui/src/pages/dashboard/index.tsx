@@ -37,10 +37,10 @@ export function DashboardIndex() {
             <Table>
               <TableHeader><TableRow><TableHead>Task</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
               <TableBody>
-                {data?.latest_failed_tasks.map(task => (
-                  <TableRow key={task.id}>
+                {data?.latest_failed_tasks.map((task, index) => (
+                  <TableRow key={index}>
                     <TableCell className="font-mono">{task.command}</TableCell>
-                    <TableCell><StatusBadge status={task.status} /></TableCell>
+                    <TableCell><StatusBadge status={task.latest_run?.status || 'failed'} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>

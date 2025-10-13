@@ -18,14 +18,14 @@ export function TaskShowModal({ task }: TaskShowModalProps) {
       <DialogHeader>
         <DialogTitle className="font-mono truncate">{task.command}</DialogTitle>
         <DialogDescription>
-          <StatusBadge status={task.status} />
+          <StatusBadge status={task.latest_run?.status || 'finished'} />
         </DialogDescription>
       </DialogHeader>
       <div className="flex-grow overflow-y-auto pr-6 text-sm">
-        {task.output && (
+        {task.latest_run?.output && (
             <div>
                 <h3 className="font-bold mb-2">Output / Exception</h3>
-                <pre className="p-2 bg-muted rounded-md whitespace-pre-wrap break-words font-mono">{task.output}</pre>
+                <pre className="p-2 bg-muted rounded-md whitespace-pre-wrap break-words font-mono">{task.latest_run.output}</pre>
             </div>
         )}
       </div>
