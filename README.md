@@ -62,6 +62,8 @@ Run this command whenever you add or modify scheduled tasks in your application.
 
 **That's it!** Frontend assets are automatically inlined (similar to Laravel Horizon), so no asset publishing is required.
 
+> **Note:** If you're upgrading from an earlier version, clear your view cache: `php artisan view:clear`
+
 ## Usage
 
 Once installed, access the Helios dashboard at:
@@ -166,6 +168,80 @@ HeliosRequest::where('created_at', '<', now()->subDays(7))->delete();
 HeliosQuery::where('created_at', '<', now()->subDays(7))->delete();
 HeliosJob::where('started_at', '<', now()->subDays(7))->delete();
 ```
+
+## Troubleshooting
+
+### "Unable to locate file in Vite manifest" Error
+
+If you see an error like:
+```
+Illuminate\Foundation\ViteException - Internal Server Error
+Unable to locate file in Vite manifest: packages/helios/helios/ui/src/main.tsx
+```
+
+This error occurs when Laravel's Vite helper conflicts with Helios's custom asset loading. **Helios uses inline assets (like Laravel Horizon) and does not use Laravel's Vite system.**
+
+**Solution:**
+
+1. **Clear Laravel caches:**
+   ```bash
+   php artisan view:clear
+   php artisan config:clear
+   php artisan cache:clear
+   ```
+
+2. **Clear browser cache:**
+   - Hard refresh your browser (Ctrl+F5 or Cmd+Shift+R)
+   - Or clear browser cache completely
+
+3. **Verify the package is properly installed:**
+   ```bash
+   composer dump-autoload
+   ```
+
+4. **If using Laravel Herd or Valet, restart the service:**
+   ```bash
+   # For Herd
+   herd restart
+
+   # For Valet
+   valet restart
+   ```
+
+5. **Check your application's `vite.config.js`:**
+   Make sure your application's Vite configuration is not scanning the vendor directory. Your config should NOT include paths like `vendor/**/*.blade.php`.
+
+### Assets Not Loading
+
+If the Helios dashboard appears blank or unstyled:
+
+1. Verify migrations have run:
+   ```bash
+   php artisan migrate
+   ```
+
+2. Clear view cache:
+   ```bash
+   php artisan view:clear
+   ```
+
+3. Check file permissions on the vendor directory:
+   ```bash
+   chmod -R 755 vendor/allanzico/laravel-helios
+   ```
+
+### Database Connection Errors
+
+If you see database-related errors:
+
+1. Ensure migrations have run:
+   ```bash
+   php artisan migrate
+   ```
+
+2. Verify your database connection is configured correctly in `.env`
+
+3. Check that your database user has permissions to create tables
 
 ## Technical Architecture
 

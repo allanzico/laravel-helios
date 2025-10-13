@@ -20,6 +20,7 @@ export default defineConfig({
     },
   },
   server: {
+    port: 5173,
     proxy: {
       '/helios/api': {
         target: 'http://localhost:8000',
@@ -28,4 +29,6 @@ export default defineConfig({
       },
     },
   },
+  // Ensure base path is correct for production builds
+  base: './',
 });

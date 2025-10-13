@@ -22,10 +22,20 @@ class Vite
         $manifestPath = __DIR__.'/../../public/.vite/manifest.json';
 
         if (!file_exists($manifestPath)) {
-            throw new \RuntimeException('Vite manifest not found. Please build the assets first: cd ui && npm run build');
+            $errorMessage = 'Helios: Vite manifest not found at: ' . $manifestPath . "\n";
+            $errorMessage .= 'This usually means the frontend assets haven\'t been built yet.' . "\n";
+            $errorMessage .= 'If you\'re developing the package, run: cd ui && npm run build' . "\n";
+            $errorMessage .= 'If you installed via Composer, please report this issue at: https://github.com/allanzico/laravel-helios/issues';
+
+            throw new \RuntimeException($errorMessage);
         }
 
-        static::$manifest = json_decode(file_get_contents($manifestPath), true);
+        $content = file_get_contents($manifestPath);
+        static::$manifest = json_decode($content, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Helios: Failed to parse Vite manifest. Error: ' . json_last_error_msg());
+        }
 
         return static::$manifest;
     }
