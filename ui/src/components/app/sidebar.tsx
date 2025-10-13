@@ -62,7 +62,7 @@ export function DesktopSidebar({ isCollapsed, setIsCollapsed }: DesktopSidebarPr
       <div className="flex h-full max-h-screen flex-col">
         <div className={`flex h-14 items-center border-b ${isCollapsed ? 'justify-center' : 'px-4 lg:px-6'}`}>
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            {!isCollapsed ? <span className="transition-opacity">Scout 🔭</span> :<span className="transition-opacity">🔭</span>}
+            {!isCollapsed ? <span className="transition-opacity">Helios ☀️</span> :<span className="transition-opacity">☀️</span>}
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-2">
@@ -110,7 +110,7 @@ export function MobileSidebar() {
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col">
         <Link to="/" className="flex items-center gap-2 font-semibold border-b pb-4 px-2 mb-4">
-          <span className="">Scout 🔭</span>
+          <span className="">Helios ☀️</span>
         </Link>
         <MobileNavContent />
       </SheetContent>

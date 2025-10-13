@@ -29,6 +29,11 @@ class HeliosServiceProvider extends ServiceProvider
             __DIR__.'/../config/helios.php' => config_path('helios.php'),
         ], 'helios-config');
 
+        // Publish public assets (built frontend files)
+        $this->publishes([
+            __DIR__.'/../public' => public_path('vendor/helios'),
+        ], 'helios-assets');
+
         // Load views
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'helios');
 
