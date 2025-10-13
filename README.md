@@ -35,15 +35,7 @@ composer require allanzico/laravel-helios
 
 The service provider will be automatically registered via Laravel's package auto-discovery.
 
-### 2. Publish Assets (Required)
-
-This step is **required** to publish the frontend assets:
-
-```bash
-php artisan vendor:publish --tag=helios-assets --force
-```
-
-### 3. Run Migrations
+### 2. Run Migrations
 
 ```bash
 php artisan migrate
@@ -58,7 +50,7 @@ This will create the following tables:
 - `helios_health_check_settings` - Health check configuration
 - `helios_errors` - Error tracking and grouping
 
-### 4. Sync Scheduled Tasks
+### 3. Sync Scheduled Tasks
 
 After installation, sync your scheduled tasks to start monitoring them:
 
@@ -67,6 +59,8 @@ php artisan helios:sync-tasks
 ```
 
 Run this command whenever you add or modify scheduled tasks in your application.
+
+That's it! The frontend assets are served directly from the package, so no publishing step is required.
 
 ## Usage
 
@@ -94,7 +88,27 @@ http://localhost:8000/helios
 
 ## Configuration
 
-Optionally publish the configuration file:
+### Publishing Assets (Optional)
+
+The package serves assets directly from the vendor directory, so publishing is not required. However, if you want to customize the frontend or host assets from your public directory:
+
+```bash
+# Publish frontend assets to public/vendor/helios
+php artisan vendor:publish --tag=helios-assets --force
+
+# Publish views to resources/views/vendor/helios
+php artisan vendor:publish --tag=helios-views
+
+# Publish config file
+php artisan vendor:publish --tag=helios-config
+
+# Publish migrations (if you want to modify them)
+php artisan vendor:publish --tag=helios-migrations
+```
+
+### Configuration File
+
+Optionally publish and customize the configuration file:
 
 ```bash
 php artisan vendor:publish --tag=helios-config
