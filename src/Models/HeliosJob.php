@@ -2,6 +2,8 @@
 
 namespace Allanzico\LaravelHelios\Models;
 
+use Allanzico\LaravelHelios\Services\QueueActionService;
+use Allanzico\LaravelHelios\Support\ActionAuthorizer;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +27,7 @@ class HeliosJob extends Model
 
     protected $appends = [
         'can_retry',
+        'can_forget',
     ];
 
     protected function casts(): array
@@ -38,6 +41,15 @@ class HeliosJob extends Model
 
     public function getCanRetryAttribute(): bool
     {
-        return $this->status === 'failed';
+        return $this->status === 'failed'
+            && app(ActionAuthorizer::class)->allowed('retry_job', 'retry_jobs')
+            && app(QueueActionService::class)->supportsActions();
+    }
+
+    public function getCanForgetAttribute(): bool
+    {
+        return $this->status === 'failed'
+            && app(ActionAuthorizer::class)->allowed('forget_job', 'forget_jobs')
+            && app(QueueActionService::class)->supportsActions();
     }
 }

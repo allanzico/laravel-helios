@@ -227,10 +227,11 @@ export function ScheduledTaskIndex() {
                           variant="outline" 
                           size="sm" 
                           onClick={() => handleRunTask(task.signature)} 
-                          disabled={!!runningCommand}
+                          disabled={!!runningCommand || !task.can_run}
+                          title={task.can_run ? 'Run this scheduled task' : 'Manual runs are disabled or this task is not allowlisted'}
                         >
                           <PlayCircle className="mr-2 h-4 w-4" />
-                          Run
+                          {task.can_run ? 'Run' : 'Disabled'}
                         </Button>
                       </TableCell>
                     </TableRow>

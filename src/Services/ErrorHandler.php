@@ -4,6 +4,7 @@ namespace Allanzico\LaravelHelios\Services;
 
 use Illuminate\Support\Facades\Auth;
 use Allanzico\LaravelHelios\Models\HeliosError;
+use Allanzico\LaravelHelios\Support\Redactor;
 use Throwable;
 
 class ErrorHandler
@@ -33,18 +34,18 @@ class ErrorHandler
                 HeliosError::create([
                     'hash' => $hash,
                     'type' => get_class($exception),
-                    'message' => $exception->getMessage(),
+                    'message' => $this->redactor()->redact($exception->getMessage()),
                     'file' => $exception->getFile(),
                     'line' => $exception->getLine(),
                     'trace' => $this->formatStackTrace($exception),
                     'level' => $this->determineErrorLevel($exception),
                     'environment' => app()->environment(),
-                    'url' => $this->request()?->fullUrl(),
+                    'url' => $this->request()?->url(),
                     'method' => $this->request()?->method(),
                     'request_data' => $this->getRequestData(),
-                    'user_id' => Auth::id(),
-                    'ip_address' => $this->request()?->ip(),
-                    'user_agent' => $this->request()?->userAgent(),
+                    'user_id' => config('helios.security.store_user_id', false) ? Auth::id() : null,
+                    'ip_address' => config('helios.security.store_ip_address', false) ? $this->request()?->ip() : null,
+                    'user_agent' => config('helios.security.store_user_agent', false) ? $this->request()?->userAgent() : null,
                     'first_seen_at' => now(),
                     'last_seen_at' => now(),
                 ]);
@@ -58,17 +59,17 @@ class ErrorHandler
 
     protected function generateErrorHash(Throwable $exception): string
     {
-        // Create a hash based on exception type, message, file, and line
-        // This groups similar errors together
-        $key = sprintf(
-            '%s:%s:%s:%d',
+        $parts = [
             get_class($exception),
             $exception->getMessage(),
             $exception->getFile(),
-            $exception->getLine()
-        );
+        ];
 
-        return hash('sha256', $key);
+        if (config('helios.error_tracking.group_by_line', false)) {
+            $parts[] = $exception->getLine();
+        }
+
+        return hash('sha256', implode(':', $parts));
     }
 
     protected function formatStackTrace(Throwable $exception): string
@@ -115,38 +116,27 @@ class ErrorHandler
         }
 
         $data = [
-            'query' => $request->query(),
-            'body' => $request->except([
-                'password',
-                'password_confirmation',
-                'current_password',
-                'token',
-                'api_token',
-                'access_token',
-                'refresh_token',
-                'secret',
-            ]),
-            'headers' => $this->sanitizeHeaders($request->headers->all()),
+            'query' => $this->redactor()->redact($request->query()),
         ];
 
-        return json_encode($data);
-    }
-
-    protected function sanitizeHeaders(array $headers): array
-    {
-        $sensitiveHeaders = ['authorization', 'cookie', 'x-csrf-token'];
-
-        foreach ($sensitiveHeaders as $header) {
-            if (isset($headers[$header])) {
-                $headers[$header] = ['***REDACTED***'];
-            }
+        if (config('helios.security.store_request_body', false)) {
+            $data['body'] = $this->redactor()->redact($request->all());
         }
 
-        return $headers;
+        if (config('helios.security.store_request_headers', false)) {
+            $data['headers'] = $this->redactor()->redact($request->headers->all());
+        }
+
+        return json_encode($data);
     }
 
     protected function request(): ?\Illuminate\Http\Request
     {
         return app()->bound('request') ? request() : null;
+    }
+
+    protected function redactor(): Redactor
+    {
+        return app(Redactor::class);
     }
 }

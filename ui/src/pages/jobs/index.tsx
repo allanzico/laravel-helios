@@ -18,6 +18,7 @@ import {
 } from '@tanstack/react-table';
 import { StatusBadge } from '@/components/app/status-badge.tsx';
 import { StatCard } from '@/components/app/stat-card';
+import { Badge } from '@/components/ui/badge';
 
 const columns: ColumnDef<Job>[] = [
   {
@@ -74,7 +75,21 @@ export function JobIndex() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Queued Jobs</CardTitle>
-              <CardDescription>Showing background jobs processed by your application.</CardDescription>
+              <CardDescription>
+                Showing background jobs processed by your application.
+                {data?.summary.queue_actions && (
+                  <span className="ml-2 inline-flex items-center gap-2">
+                    <Badge variant={data.summary.queue_actions.retry_supported ? 'default' : 'outline'}>
+                      {data.summary.queue_actions.failed_driver ?? 'no failed driver'}
+                    </Badge>
+                    <span>
+                      {data.summary.queue_actions.retry_supported
+                        ? 'Retry actions are provider-backed.'
+                        : 'Retry actions are not supported by this failed-job driver.'}
+                    </span>
+                  </span>
+                )}
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">

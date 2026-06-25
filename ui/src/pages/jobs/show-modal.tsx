@@ -61,17 +61,34 @@ export function JobShowModal({ job }: JobShowModalProps) {
           </div>
           {job.status === 'failed' && (
             <div className="flex shrink-0 items-center gap-2">
-              <Button size="sm" variant="outline" onClick={handleRetry} disabled={retryMutation.isPending}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleRetry}
+                disabled={retryMutation.isPending || !job.can_retry}
+                title={job.can_retry ? 'Retry this failed job' : 'Job retry is disabled'}
+              >
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Retry
               </Button>
-              <Button size="sm" variant="destructive" onClick={handleForget} disabled={forgetMutation.isPending}>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleForget}
+                disabled={forgetMutation.isPending || !job.can_forget}
+                title={job.can_forget ? 'Forget this failed job' : 'Job forget is disabled'}
+              >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Forget
               </Button>
             </div>
           )}
         </div>
+        {job.status === 'failed' && !job.can_retry && !job.can_forget && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Queue actions are disabled or this failed-job provider cannot be mapped safely from Helios job IDs.
+          </p>
+        )}
       </DialogHeader>
       <div className="flex-grow overflow-y-auto pr-6 text-sm">
         {job.exception && (

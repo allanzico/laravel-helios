@@ -49,7 +49,14 @@ export function LogShow() {
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4" /> Clear Log</Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={!data?.can_clear}
+                  title={data?.can_clear ? 'Clear this log file' : 'Log clearing is disabled'}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Clear Log
+                </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>

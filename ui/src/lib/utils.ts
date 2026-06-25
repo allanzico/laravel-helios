@@ -21,6 +21,7 @@ const badgeStatusMap: Record<string, BadgeVariant> = {
   failed: 'destructive',
   error: 'destructive',
   critical: 'destructive',
+  skipped: 'outline',
   debug: 'outline',
 };
 

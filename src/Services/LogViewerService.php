@@ -2,6 +2,7 @@
 
 namespace Allanzico\LaravelHelios\Services;
 
+use Allanzico\LaravelHelios\Support\Redactor;
 use Illuminate\Support\Facades\File;
 
 class LogViewerService
@@ -52,7 +53,7 @@ class LogViewerService
         }
 
         // Call the new, efficient method to read the end of the file.
-        return $this->readLastLinesFromFile($filePath, 500);
+        return app(Redactor::class)->logContent($this->readLastLinesFromFile($filePath, 500));
     }
 
     /**

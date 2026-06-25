@@ -15,6 +15,9 @@
         window.Helios = {!! \Illuminate\Support\Js::from([
             'basePath' => '/' . trim(config('helios.path', 'helios'), '/'),
             'apiPath' => '/' . trim(config('helios.path', 'helios'), '/') . '/api',
+            'actions' => [
+                'purgeData' => app(\Allanzico\LaravelHelios\Support\ActionAuthorizer::class)->allowed('purge_data', 'purge_data'),
+            ],
         ]) !!};
     </script>
 

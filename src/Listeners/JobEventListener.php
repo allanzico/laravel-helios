@@ -8,6 +8,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Allanzico\LaravelHelios\Models\HeliosJob;
+use Allanzico\LaravelHelios\Support\Redactor;
 use Throwable;
 
 class JobEventListener
@@ -18,12 +19,18 @@ class JobEventListener
     public function handleJobProcessing(JobProcessing $event): void
     {
         try {
+            $payload = json_decode($event->job->getRawBody(), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $payload = $event->job->getRawBody();
+            }
+
             HeliosJob::updateOrCreate(
                 ['id' => $event->job->uuid()],
                 [
                     'name' => $event->job->resolveName(),
                     'status' => 'running',
-                    'payload' => $event->job->getRawBody(),
+                    'payload' => app(Redactor::class)->redact($payload),
                     'exception' => null,
                     'started_at' => now(),
                     'finished_at' => null,
@@ -60,7 +67,7 @@ class JobEventListener
             if ($heliosJob) {
                 $heliosJob->update([
                     'status' => $status,
-                    'exception' => $exception?->getMessage(),
+                    'exception' => $exception ? app(Redactor::class)->redact($exception->getMessage()) : null,
                     'finished_at' => now(),
                 ]);
             }

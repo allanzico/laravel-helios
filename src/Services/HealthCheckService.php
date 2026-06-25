@@ -4,12 +4,16 @@ namespace Allanzico\LaravelHelios\Services;
 
 use Allanzico\LaravelHelios\Enums\HealthStatus;
 use Allanzico\LaravelHelios\HealthChecks\Checks\ApplicationHealthCheck;
+use Allanzico\LaravelHelios\HealthChecks\Checks\CacheHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\DatabaseHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\DiskSpaceHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\EnvironmentHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\QueueHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\RedisHealthCheck;
+use Allanzico\LaravelHelios\HealthChecks\Checks\SchedulerFreshnessHealthCheck;
+use Allanzico\LaravelHelios\HealthChecks\Checks\StorageWritabilityHealthCheck;
 use Allanzico\LaravelHelios\Models\HeliosHealthCheckSetting;
+use Allanzico\LaravelHelios\Support\Redactor;
 
 class HealthCheckService
 {
@@ -19,11 +23,14 @@ class HealthCheckService
         
         // Infrastructure Checks
         DatabaseHealthCheck::class,
+        CacheHealthCheck::class,
         RedisHealthCheck::class,
         
         // Resource Checks
         DiskSpaceHealthCheck::class,
+        StorageWritabilityHealthCheck::class,
         QueueHealthCheck::class,
+        SchedulerFreshnessHealthCheck::class,
         
         // Configuration Checks
         EnvironmentHealthCheck::class,
@@ -54,11 +61,14 @@ class HealthCheckService
             ],
             'Infrastructure' => [
                 DatabaseHealthCheck::class,
+                CacheHealthCheck::class,
                 RedisHealthCheck::class,
             ],
             'Resources' => [
                 DiskSpaceHealthCheck::class,
+                StorageWritabilityHealthCheck::class,
                 QueueHealthCheck::class,
+                SchedulerFreshnessHealthCheck::class,
             ],
             'Configuration' => [
                 EnvironmentHealthCheck::class,
@@ -95,16 +105,16 @@ class HealthCheckService
             try {
                 $check = new $checkClass();
                 $result = $check->run();
-                $results[] = $result->toArray();
+                $results[] = $this->sanitizeResult($result->toArray());
             } catch (\Throwable $e) {
-                $results[] = [
+                $results[] = $this->sanitizeResult([
                     'check' => class_basename($checkClass),
                     'label' => class_basename($checkClass),
                     'status' => HealthStatus::CRASHED->value,
                     'message' => $e->getMessage(),
                     'short_summary' => 'crashed',
                     'meta' => [],
-                ];
+                ]);
             }
         }
 
@@ -124,5 +134,23 @@ class HealthCheckService
         }
 
         return 'ok';
+    }
+
+    protected function sanitizeResult(array $result): array
+    {
+        $redactor = app(Redactor::class);
+
+        $result['message'] = $redactor->redact($result['message'] ?? '');
+        $result['short_summary'] = $redactor->redact($result['short_summary'] ?? '');
+
+        if (! config('helios.security.show_health_meta', false)) {
+            $result['meta'] = [];
+
+            return $result;
+        }
+
+        $result['meta'] = $redactor->redact($result['meta'] ?? []);
+
+        return $result;
     }
 }

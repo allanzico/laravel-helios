@@ -9,12 +9,33 @@ use Allanzico\LaravelHelios\Models\HeliosJob;
 use Allanzico\LaravelHelios\Models\HeliosQuery;
 use Allanzico\LaravelHelios\Models\HeliosRequest;
 use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
+use Allanzico\LaravelHelios\Services\HealthCheckService;
 
 class DashboardController extends Controller
 {
     public function stats(): JsonResponse
     {
+        $healthService = app(HealthCheckService::class);
+        $healthChecks = collect($healthService->runAllChecks());
+        $problemChecks = $healthChecks
+            ->whereIn('status', ['failed', 'crashed', 'warning'])
+            ->values();
+
         $stats = [
+            'health' => [
+                'overall_status' => $healthService->getOverallStatus($healthChecks->all()),
+                'total_checks' => $healthChecks->count(),
+                'problem_count' => $problemChecks->count(),
+                'problems' => $problemChecks
+                    ->take(5)
+                    ->map(fn (array $check) => [
+                        'check' => $check['check'],
+                        'status' => $check['status'],
+                        'message' => $check['message'],
+                        'short_summary' => $check['short_summary'],
+                    ])
+                    ->values(),
+            ],
             'failed_jobs_24h' => HeliosJob::query()
                 ->where('status', 'failed')
                 ->where('finished_at', '>=', now()->subDay())

@@ -4,6 +4,7 @@ namespace Allanzico\LaravelHelios\Console;
 
 use Illuminate\Console\Command;
 use Allanzico\LaravelHelios\Models\HeliosError;
+use Allanzico\LaravelHelios\Models\HeliosAction;
 use Allanzico\LaravelHelios\Models\HeliosJob;
 use Allanzico\LaravelHelios\Models\HeliosQuery;
 use Allanzico\LaravelHelios\Models\HeliosRequest;
@@ -33,6 +34,7 @@ class Prune extends Command
             'jobs' => HeliosJob::where('started_at', '<', $cutoff)->delete(),
             'scheduled_tasks' => HeliosScheduledTask::where('started_at', '<', $cutoff)->delete(),
             'errors' => HeliosError::where('last_seen_at', '<', $cutoff)->delete(),
+            'actions' => HeliosAction::where('created_at', '<', $cutoff)->delete(),
         ];
 
         foreach ($deleted as $name => $count) {

@@ -18,6 +18,12 @@ class RedisHealthCheck extends HealthCheck
 
     public function run(): HealthCheckResult
     {
+        if (! $this->shouldRun()) {
+            $this->shortSummary = 'not used';
+
+            return $this->skipped('Redis is not used by the configured cache, queue, or session drivers');
+        }
+
         try {
             $connection = Redis::connection($this->connectionName);
             
@@ -35,5 +41,23 @@ class RedisHealthCheck extends HealthCheck
         } catch (\Throwable $e) {
             return $this->crashed("Could not connect to Redis", $e);
         }
+    }
+
+    protected function shouldRun(): bool
+    {
+        $configured = config('helios.health.redis.enabled');
+
+        if ($configured !== null) {
+            return (bool) $configured;
+        }
+
+        $cacheStore = config('cache.default');
+        $cacheDriver = config("cache.stores.{$cacheStore}.driver");
+        $queueConnection = config('queue.default');
+        $queueDriver = config("queue.connections.{$queueConnection}.driver");
+
+        return $cacheDriver === 'redis'
+            || $queueDriver === 'redis'
+            || config('session.driver') === 'redis';
     }
 }

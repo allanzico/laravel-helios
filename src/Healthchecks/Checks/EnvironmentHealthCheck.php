@@ -18,16 +18,17 @@ class EnvironmentHealthCheck extends HealthCheck
     public function run(): HealthCheckResult
     {
         $currentEnv = app()->environment();
+        $expectedEnvironment = config('helios.health.environment.expected');
 
         $this->shortSummary = $currentEnv;
         $this->meta = [
             'current_environment' => $currentEnv,
-            'expected_environment' => $this->expectedEnvironment,
+            'expected_environment' => $expectedEnvironment,
             'debug_mode' => config('app.debug'),
         ];
 
-        if ($currentEnv !== $this->expectedEnvironment) {
-            return $this->warning("Environment mismatch. Expected '{$this->expectedEnvironment}', got '{$currentEnv}'");
+        if ($expectedEnvironment && $currentEnv !== $expectedEnvironment) {
+            return $this->warning("Environment mismatch. Expected '{$expectedEnvironment}', got '{$currentEnv}'");
         }
 
         if (config('app.debug') && $currentEnv === 'production') {

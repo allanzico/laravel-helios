@@ -73,6 +73,18 @@ abstract class HealthCheck
         );
     }
 
+    protected function skipped(string $message): HealthCheckResult
+    {
+        return new HealthCheckResult(
+            check: $this->getName(),
+            label: $this->getLabel(),
+            status: HealthStatus::SKIPPED,
+            message: $message,
+            shortSummary: $this->shortSummary,
+            meta: $this->meta
+        );
+    }
+
     protected function crashed(string $message, \Throwable $exception): HealthCheckResult
     {
         return new HealthCheckResult(

@@ -8,6 +8,7 @@ export interface LogFile {
 export interface LogContent {
   file: string;
   content: string;
+  can_clear?: boolean;
 }
 
 export interface Job {
@@ -19,11 +20,21 @@ export interface Job {
   started_at: string;
   finished_at: string | null;
   can_retry?: boolean;
+  can_forget?: boolean;
 }
 
 export interface QueueSummary {
   pending_jobs: number;
   failed_jobs: number;
+  queue_actions?: QueueActionCapabilities;
+}
+
+export interface QueueActionCapabilities {
+  failed_driver: string | null;
+  failed_provider: string | null;
+  uses_helios_job_ids: boolean;
+  retry_supported: boolean;
+  forget_supported: boolean;
 }
 
 export interface JobsResponse {
@@ -48,6 +59,7 @@ export interface ScheduledTask {
   expression: string;
   description: string | null;
   next_run_at: string;
+  can_run?: boolean;
   latest_run: LatestRun | null;
 }
 
@@ -87,6 +99,7 @@ export interface PaginatedResponse<T> {
 }
 
 export interface DashboardStats {
+  health?: DashboardHealthSummary;
   failed_jobs_24h: number;
   errors_24h: number;
   http_errors_24h: number;
@@ -94,6 +107,20 @@ export interface DashboardStats {
   avg_memory_24h: number;
   latest_failed_tasks: ScheduledTask[];
   latest_slow_queries: Query[];
+}
+
+export interface DashboardHealthSummary {
+  overall_status: 'ok' | 'warning' | 'failed';
+  total_checks: number;
+  problem_count: number;
+  problems: DashboardHealthProblem[];
+}
+
+export interface DashboardHealthProblem {
+  check: string;
+  status: string;
+  message: string;
+  short_summary: string | null;
 }
 
 export interface ChartDataPoint {

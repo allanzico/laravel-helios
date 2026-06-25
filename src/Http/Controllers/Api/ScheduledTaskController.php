@@ -9,6 +9,10 @@ use Illuminate\Routing\Controller;
 use Illuminate\Console\Scheduling\Schedule;
 use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
 use Allanzico\LaravelHelios\Models\HeliosTaskDefinition;
+use Allanzico\LaravelHelios\Services\ActionRecorder;
+use Allanzico\LaravelHelios\Support\ActionAuthorizer;
+use Allanzico\LaravelHelios\Support\Redactor;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
 use Throwable;
@@ -36,6 +40,7 @@ class ScheduledTaskController extends Controller
                 'expression' => $taskDefinition->expression,
                 'description' => $taskDefinition->description,
                 'next_run_at' => (new CronExpression($taskDefinition->expression))->getNextRunDate()->format('c'),
+                'can_run' => $this->canRunTask($taskDefinition, $signature),
             ];
 
             // Add latest run details if it exists
@@ -96,7 +101,13 @@ class ScheduledTaskController extends Controller
 
     public function run(Request $request): StreamedResponse
     {
-        abort_unless(config('helios.watchers.schedule.allow_manual_runs', true), 403, 'Manual scheduled task runs are disabled.');
+        app(ActionAuthorizer::class)->authorize(
+            'run_task',
+            'run_scheduled_tasks',
+            'Manual scheduled task runs are disabled.'
+        );
+
+        abort_unless(config('helios.watchers.schedule.allow_manual_runs', false), 403, 'Manual scheduled task runs are disabled.');
 
         $validated = $request->validate(['signature' => 'required|string']);
         $signature = $validated['signature'];
@@ -110,6 +121,8 @@ class ScheduledTaskController extends Controller
             abort(403, 'This command is not a scheduled task.');
         }
 
+        abort_unless($this->canRunTask($taskDefinition, $signature), 403, 'This scheduled task is not allowlisted for manual runs.');
+
         return new StreamedResponse(function () use ($signature, $taskDefinition) {
             // Create a log entry for this manual run
             $taskLog = HeliosScheduledTask::create([
@@ -118,6 +131,11 @@ class ScheduledTaskController extends Controller
                 'status' => 'starting',
                 'started_at' => now(),
                 'triggered_by' => 'manual',
+            ]);
+
+            app(ActionRecorder::class)->record('run_scheduled_task', 'scheduled_task', $taskLog->id, 'started', [
+                'command' => $taskDefinition->command,
+                'signature' => $signature,
             ]);
 
             header('Content-Type: text/event-stream');
@@ -151,6 +169,7 @@ class ScheduledTaskController extends Controller
                 $finalOutput .= "\n\n--- PROCESS FAILED ---";
                 $finalOutput .= "\nExit Code: {$exitCode}";
                 $finalOutput .= "\nDuration: " . round($runtime, 2) . "ms";
+                $finalOutput = app(Redactor::class)->redact($finalOutput);
                 
                 $taskLog->update([
                     'status' => 'failed',
@@ -158,18 +177,29 @@ class ScheduledTaskController extends Controller
                     'runtime_ms' => $runtime,
                     'output' => $finalOutput,
                 ]);
+                app(ActionRecorder::class)->record('run_scheduled_task', 'scheduled_task', $taskLog->id, 'failed', [
+                    'command' => $taskDefinition->command,
+                    'signature' => $signature,
+                    'exit_code' => $exitCode,
+                ]);
                 $this->sendSseMessage("\n--- PROCESS FAILED (Exit Code: {$exitCode}) ---");
             } else {
                 $finalOutput = $allOutput ?: '(No output produced)';
                 $finalOutput .= "\n\n--- PROCESS FINISHED ---";
                 $finalOutput .= "\nStatus: Success";
                 $finalOutput .= "\nDuration: " . round($runtime, 2) . "ms";
+                $finalOutput = app(Redactor::class)->redact($finalOutput);
                 
                 $taskLog->update([
                     'status' => 'finished',
                     'finished_at' => now(),
                     'runtime_ms' => $runtime,
                     'output' => $finalOutput,
+                ]);
+                app(ActionRecorder::class)->record('run_scheduled_task', 'scheduled_task', $taskLog->id, 'finished', [
+                    'command' => $taskDefinition->command,
+                    'signature' => $signature,
+                    'exit_code' => 0,
                 ]);
                 $this->sendSseMessage("\n--- PROCESS FINISHED ---");
             }
@@ -178,6 +208,8 @@ class ScheduledTaskController extends Controller
 
     private function sendSseMessage(string $data): void
     {
+        $data = app(Redactor::class)->redact($data);
+
         echo "data: " . json_encode($data) . "\n\n";
         if (ob_get_level() > 0) {
             ob_flush();
@@ -228,5 +260,35 @@ class ScheduledTaskController extends Controller
         }
         
         return null;
+    }
+
+    private function canRunTask(HeliosTaskDefinition $taskDefinition, string $signature): bool
+    {
+        if (! config('helios.watchers.schedule.allow_manual_runs', false)) {
+            return false;
+        }
+
+        if (! app(ActionAuthorizer::class)->allowed('run_task', 'run_scheduled_tasks')) {
+            return false;
+        }
+
+        foreach ($this->manualRunAllowlist() as $allowedCommand) {
+            if (Str::is($allowedCommand, $signature) || Str::is($allowedCommand, $taskDefinition->command)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function manualRunAllowlist(): array
+    {
+        $allowlist = config('helios.watchers.schedule.manual_allowlist', []);
+
+        if (is_string($allowlist)) {
+            $allowlist = explode(',', $allowlist);
+        }
+
+        return array_values(array_filter(array_map('trim', $allowlist)));
     }
 }

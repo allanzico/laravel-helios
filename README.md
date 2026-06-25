@@ -24,7 +24,7 @@ A lightweight, self-hosted monitoring tool for Laravel applications. Helios prov
 ## Requirements
 
 - PHP 8.2 or higher
-- Laravel 11.0 or higher (Laravel 12 supported)
+- Laravel 11.0 or higher (Laravel 11, 12, and 13 supported)
 - MySQL/PostgreSQL database
 
 ## Installation
@@ -79,14 +79,10 @@ http://localhost:8000/helios
 
 ### Dashboard Features
 
-- **Overview**: Quick stats on failed jobs, errors, average response time, and slow queries
-- **Requests**: Monitor all HTTP requests with duration, status codes, and memory usage
-- **Jobs**: Track execution history and retry or forget failed queue jobs
-- **Queries**: View slow database queries with execution time and bindings
-- **Scheduled Tasks**: Monitor cron jobs and run scheduled commands manually
-- **Logs**: Browse and search application logs
-- **Health Checks**: Configure and monitor application health checks
-- **Errors**: Track and group application errors with detailed stack traces
+- **Overview**: Problems-first health summary, failed jobs, errors, slow requests, and slow queries
+- **Operations**: Health checks, queue status/actions, and scheduler monitoring/manual runs
+- **Performance**: Request and query performance samples
+- **Events**: Application logs and grouped errors
 
 ## Local Playground
 
@@ -107,6 +103,22 @@ To generate sample requests, queries, logs, errors, and a failed queued job:
 
 ```bash
 bash scripts/playground-demo.sh
+```
+
+## Testing
+
+Run the package test suite with:
+
+```bash
+composer install
+composer test
+```
+
+Run the playground smoke tests with:
+
+```bash
+cd playground
+php artisan test
 ```
 
 ## Configuration
@@ -150,6 +162,7 @@ return [
 
     'allowed_environments' => ['local', 'testing'],
     'gate' => 'viewHelios',
+    'strict_authorization' => true,
 
     'log_path' => storage_path('logs'),
 
@@ -164,12 +177,52 @@ return [
             'slow_ms' => (float) env('HELIOS_SLOW_QUERY_MS', 100),
             'sample_rate' => (float) env('HELIOS_QUERY_SAMPLE_RATE', 0.0),
         ],
+        'schedule' => [
+            'enabled' => env('HELIOS_SCHEDULE_ENABLED', true),
+            'allow_manual_runs' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', app()->environment(['local', 'testing'])),
+            'manual_allowlist' => [],
+        ],
+    ],
+
+    'actions' => [
+        'run_scheduled_tasks' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', app()->environment(['local', 'testing'])),
+        'retry_jobs' => env('HELIOS_ALLOW_JOB_RETRY', app()->environment(['local', 'testing'])),
+        'forget_jobs' => env('HELIOS_ALLOW_JOB_FORGET', false),
+        'clear_logs' => env('HELIOS_ALLOW_LOG_CLEAR', false),
+        'purge_data' => env('HELIOS_ALLOW_PURGE_DATA', app()->environment(['local', 'testing'])),
+    ],
+
+    'security' => [
+        'store_query_bindings' => env('HELIOS_STORE_QUERY_BINDINGS', false),
+        'store_request_body' => env('HELIOS_STORE_REQUEST_BODY', false),
+        'store_request_headers' => env('HELIOS_STORE_REQUEST_HEADERS', false),
+        'show_health_meta' => env('HELIOS_SHOW_HEALTH_META', app()->environment(['local', 'testing'])),
+    ],
+
+    'health' => [
+        'scheduler' => [
+            'lookback_minutes' => (int) env('HELIOS_SCHEDULER_HEALTH_LOOKBACK_MINUTES', 1440),
+            'grace_minutes' => (int) env('HELIOS_SCHEDULER_HEALTH_GRACE_MINUTES', 5),
+        ],
+        'redis' => [
+            'enabled' => env('HELIOS_HEALTH_REDIS_ENABLED'),
+        ],
+        'environment' => [
+            'expected' => env('HELIOS_HEALTH_EXPECTED_ENV'),
+        ],
+        'storage' => [
+            'paths' => [
+                storage_path('framework/cache'),
+                storage_path('logs'),
+            ],
+        ],
     ],
 
     'retention_days' => (int) env('HELIOS_RETENTION_DAYS', 7),
 
     'error_tracking' => [
         'enabled' => env('HELIOS_ERROR_TRACKING_ENABLED', true),
+        'group_by_line' => env('HELIOS_ERROR_GROUP_BY_LINE', false),
     ],
 ];
 ```
@@ -182,6 +235,16 @@ In production, define a `viewHelios` gate in your application:
 use Illuminate\Support\Facades\Gate;
 
 Gate::define('viewHelios', fn ($user = null) => $user?->email === 'you@example.com');
+```
+
+Optional action-specific gates are also supported:
+
+```php
+Gate::define('runHeliosTask', fn ($user = null) => $user?->isAdmin());
+Gate::define('retryHeliosJob', fn ($user = null) => $user?->isAdmin());
+Gate::define('forgetHeliosJob', fn ($user = null) => $user?->isAdmin());
+Gate::define('clearHeliosLog', fn ($user = null) => $user?->isAdmin());
+Gate::define('purgeHeliosData', fn ($user = null) => $user?->isAdmin());
 ```
 
 ### Environment Variables
@@ -203,15 +266,47 @@ HELIOS_QUERY_SAMPLE_RATE=0
 
 # Enable/disable error tracking
 HELIOS_ERROR_TRACKING_ENABLED=true
+
+# Manual actions
+HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS=false
+HELIOS_SCHEDULE_MANUAL_ALLOWLIST=reports:daily,cache:warm
+HELIOS_ALLOW_JOB_RETRY=false
+HELIOS_ALLOW_JOB_FORGET=false
+HELIOS_ALLOW_LOG_CLEAR=false
+HELIOS_ALLOW_PURGE_DATA=false
+
+# Sensitive data capture
+HELIOS_STORE_QUERY_BINDINGS=false
+HELIOS_STORE_REQUEST_BODY=false
+HELIOS_STORE_REQUEST_HEADERS=false
+HELIOS_SHOW_HEALTH_META=false
+
+# Scheduler health
+HELIOS_SCHEDULER_HEALTH_LOOKBACK_MINUTES=1440
+HELIOS_SCHEDULER_HEALTH_GRACE_MINUTES=5
+HELIOS_HEALTH_REDIS_ENABLED=
+HELIOS_HEALTH_EXPECTED_ENV=
 ```
+
+### Queue Actions
+
+Helios uses Laravel's configured failed-job provider for retry and forget actions. Actions are supported when the failed-job provider stores UUIDs that match Helios job IDs, such as `database-uuids`, `file`, and `dynamodb`.
+
+Legacy numeric failed-job IDs from the `database` failed driver are shown as unsupported because Helios cannot safely map them back to the UUIDs emitted by Laravel queue events.
 
 ## Error Tracking
 
 Automatic error tracking is registered by the package service provider. You do not need to replace your application's exception handler.
 
+## Health Checks
+
+Helios includes operational health checks for application boot, database, cache, Redis, disk space, storage writability, queue status, scheduler freshness, and environment configuration. Redis is skipped unless Redis is used by cache, queue, or session configuration, or `HELIOS_HEALTH_REDIS_ENABLED=true`.
+
+The scheduler freshness check compares discovered scheduled tasks against their cron expressions. If a task was due within the configured lookback window but Helios has not recorded a scheduler-triggered run within the grace period, the check fails.
+
 ## Purging Old Data
 
-You can purge old monitoring data directly from the dashboard using the "Purge" buttons on each page, or programmatically:
+You can purge old monitoring data directly from the dashboard when `HELIOS_ALLOW_PURGE_DATA=true`, or programmatically:
 
 ```php
 use Allanzico\LaravelHelios\Models\HeliosRequest;

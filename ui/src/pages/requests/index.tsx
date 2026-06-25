@@ -9,6 +9,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { RequestShowModal } from './show-modal.tsx';
 import { RequestType } from '@/api/types';
+import { heliosActionAllowed } from '@/api/client';
 import { RefreshCw, Trash2 } from 'lucide-react';
 import {
   useReactTable,
@@ -59,6 +60,7 @@ export function RequestIndex() {
     pageSize,
   });
   const purgeMutation = usePurgeMutation(['requests']);
+  const canPurge = heliosActionAllowed('purgeData');
   const [selectedRequest, setSelectedRequest] = useState<RequestType | null>(null);
   const defaultData = useMemo(() => [] as RequestType[], []);
 
@@ -86,7 +88,16 @@ export function RequestIndex() {
             </div>
             <div className="flex items-center gap-2">
                 <AlertDialog>
-                  <AlertDialogTrigger asChild><Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4" /> Purge</Button></AlertDialogTrigger>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      disabled={!canPurge}
+                      title={canPurge ? 'Purge recorded requests' : 'Purge actions are disabled'}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" /> Purge
+                    </Button>
+                  </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete all recorded request history.</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => purgeMutation.mutate('helios_requests')}>Continue</AlertDialogAction></AlertDialogFooter>

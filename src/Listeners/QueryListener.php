@@ -5,6 +5,7 @@ namespace Allanzico\LaravelHelios\Listeners;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\Schema;
 use Allanzico\LaravelHelios\Models\HeliosQuery;
+use Allanzico\LaravelHelios\Support\Redactor;
 use Throwable;
 
 class QueryListener
@@ -37,7 +38,7 @@ class QueryListener
             HeliosQuery::create([
                 'connection_name' => $event->connectionName,
                 'sql' => $event->sql,
-                'bindings' => $event->bindings,
+                'bindings' => app(Redactor::class)->queryBindings($event->bindings),
                 'time_ms' => $event->time,
                 'created_at' => now(),
             ]);

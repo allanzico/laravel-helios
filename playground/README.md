@@ -21,4 +21,4 @@ Open:
 
 Use the homepage links to generate requests, logs, queries, errors, and a failed queue job.
 
-The scheduled command `demo:heartbeat` is registered in `routes/console.php` and can be run from Helios.
+The scheduled command `demo:heartbeat` is registered in `routes/console.php` and allowlisted for manual runs in `.env.example`.

@@ -15,11 +15,13 @@ class Authorize
             return $next($request);
         }
 
-        if (Gate::has(config('helios.gate', 'viewHelios')) && Gate::allows(config('helios.gate', 'viewHelios'))) {
+        $gate = config('helios.gates.view', config('helios.gate', 'viewHelios'));
+
+        if (Gate::has($gate) && Gate::allows($gate)) {
             return $next($request);
         }
 
-        abort(403);
+        abort(403, "Helios is not accessible in this environment without an explicit {$gate} gate.");
     }
 
     protected function isAllowedEnvironment(): bool

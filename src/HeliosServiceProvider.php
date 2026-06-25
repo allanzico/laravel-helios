@@ -7,6 +7,7 @@ use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use RuntimeException;
 use Allanzico\LaravelHelios\Console\Prune;
 use Allanzico\LaravelHelios\Console\SyncTasks;
 use Allanzico\LaravelHelios\Http\Middleware\Authorize;
@@ -66,6 +67,8 @@ class HeliosServiceProvider extends ServiceProvider
         $path = trim(config('helios.path', 'helios'), '/');
         $middleware = config('helios.middleware', ['web', Authorize::class]);
 
+        $this->ensureRoutesAreProtected($middleware);
+
         Route::domain(config('helios.domain'))
              ->middleware($middleware)
              ->prefix("{$path}/api")
@@ -81,6 +84,28 @@ class HeliosServiceProvider extends ServiceProvider
              ->group(function () {
                  $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
              });
+    }
+
+    protected function ensureRoutesAreProtected(array $middleware): void
+    {
+        if (! config('helios.strict_authorization', true)) {
+            return;
+        }
+
+        if (app()->environment(config('helios.allowed_environments', ['local', 'testing']))) {
+            return;
+        }
+
+        $hasBuiltInAuthorization = in_array(Authorize::class, $middleware, true);
+        $hasCustomAuthorization = collect($middleware)
+            ->reject(fn ($name) => in_array($name, ['web'], true))
+            ->isNotEmpty();
+
+        if (! $hasBuiltInAuthorization && ! $hasCustomAuthorization) {
+            throw new RuntimeException(
+                'Helios routes are not protected. Add the Helios Authorize middleware or custom admin middleware before enabling Helios outside local/testing.'
+            );
+        }
     }
 
     /**

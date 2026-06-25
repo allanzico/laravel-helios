@@ -1,6 +1,9 @@
 type HeliosRuntimeConfig = {
   basePath: string;
   apiPath: string;
+  actions?: {
+    purgeData?: boolean;
+  };
 };
 
 declare global {
@@ -19,5 +22,9 @@ export const heliosApi = (path = '') => {
 };
 
 export const csrfToken = () => (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content ?? '';
+
+export const heliosActionAllowed = (action: keyof NonNullable<HeliosRuntimeConfig['actions']>) => {
+  return window.Helios?.actions?.[action] ?? false;
+};
 
 export {};

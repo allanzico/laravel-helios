@@ -24,6 +24,7 @@ import {
   PaginationState,
 } from '@tanstack/react-table';
 import { Query } from '@/api/types';
+import { heliosActionAllowed } from '@/api/client';
 import { formatDistanceToNow } from 'date-fns';
 import { Trash2 } from 'lucide-react';
 
@@ -50,6 +51,7 @@ export function QueryIndex() {
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 25 });
   const { data, isLoading, isError } = useQueriesQuery({ page: pageIndex + 1, pageSize });
   const purgeMutation = usePurgeMutation(['queries']);
+  const canPurge = heliosActionAllowed('purgeData');
 
   const defaultData = useMemo(() => [] as Query[], []);
 
@@ -74,7 +76,14 @@ export function QueryIndex() {
         </div>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" size="sm"><Trash2 className="mr-2 h-4 w-4" /> Purge</Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={!canPurge}
+              title={canPurge ? 'Purge recorded queries' : 'Purge actions are disabled'}
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Purge
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
