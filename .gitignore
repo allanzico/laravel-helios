@@ -64,3 +64,16 @@ ehthumbs.db
 *.tmp
 
 # Keep any intentionally committed files in storage or public by adding an explicit allow rule in future
+
+# Local playground app dependencies and runtime state
+/playground/vendor/
+/playground/node_modules/
+/playground/.env
+/playground/.env.*
+!/playground/.env.example
+/playground/database/*.sqlite
+/playground/storage/logs/*.log
+/playground/storage/framework/cache/data/
+/playground/storage/framework/sessions/
+/playground/storage/framework/views/
+/playground/bootstrap/cache/*.php

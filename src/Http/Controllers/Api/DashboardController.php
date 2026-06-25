@@ -4,7 +4,7 @@ namespace Allanzico\LaravelHelios\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
+use Allanzico\LaravelHelios\Models\HeliosError;
 use Allanzico\LaravelHelios\Models\HeliosJob;
 use Allanzico\LaravelHelios\Models\HeliosQuery;
 use Allanzico\LaravelHelios\Models\HeliosRequest;
@@ -19,7 +19,10 @@ class DashboardController extends Controller
                 ->where('status', 'failed')
                 ->where('finished_at', '>=', now()->subDay())
                 ->count(),
-            'errors_24h' => HeliosRequest::query()
+            'errors_24h' => HeliosError::query()
+                ->where('last_seen_at', '>=', now()->subDay())
+                ->sum('occurrences'),
+            'http_errors_24h' => HeliosRequest::query()
                 ->where('status_code', '>=', 400)
                 ->where('created_at', '>=', now()->subDay())
                 ->count(),
@@ -43,17 +46,18 @@ class DashboardController extends Controller
         return response()->json($stats);
     }
 
-        public function requestsPerMinute(): JsonResponse
+    public function requestsPerMinute(): JsonResponse
     {
         $data = HeliosRequest::query()
-            ->select(
-                DB::raw("to_char(created_at, 'HH24:MI') as time"),
-                DB::raw('count(*) as count')
-            )
             ->where('created_at', '>=', now()->subHour())
-            ->groupBy('time')
-            ->orderBy('time')
-            ->get();
+            ->orderBy('created_at')
+            ->get(['created_at'])
+            ->groupBy(fn (HeliosRequest $request) => $request->created_at->format('H:i'))
+            ->map(fn ($requests, string $time) => [
+                'time' => $time,
+                'count' => $requests->count(),
+            ])
+            ->values();
 
         return response()->json($data);
     }

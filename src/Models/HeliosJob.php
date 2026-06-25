@@ -23,6 +23,10 @@ class HeliosJob extends Model
         'finished_at',
     ];
 
+    protected $appends = [
+        'can_retry',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -30,5 +34,10 @@ class HeliosJob extends Model
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
         ];
+    }
+
+    public function getCanRetryAttribute(): bool
+    {
+        return $this->status === 'failed';
     }
 }

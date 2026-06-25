@@ -17,10 +17,12 @@ Route::get('/logs/{file}', [LogController::class, 'show'])->name('logs.show');
 
 // Job routes (add this line)
 Route::get('/jobs', [JobController::class, 'index'])->name('jobs.index');
+Route::post('/jobs/{id}/retry', [JobController::class, 'retry'])->name('jobs.retry');
+Route::delete('/jobs/{id}', [JobController::class, 'forget'])->name('jobs.forget');
 
 //Tasks routes
 Route::get('/scheduled-tasks', [ScheduledTaskController::class, 'index'])->name('scheduled-tasks.index');
-Route::get('/scheduled-tasks/run', [ScheduledTaskController::class, 'run'])->name('scheduled-tasks.run');
+Route::post('/scheduled-tasks/run', [ScheduledTaskController::class, 'run'])->name('scheduled-tasks.run');
 
 // Database Query routes
 Route::get('/queries', [QueryController::class, 'index'])->name('queries.index');

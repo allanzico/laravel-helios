@@ -11,6 +11,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
 
+    <script>
+        window.Helios = {!! \Illuminate\Support\Js::from([
+            'basePath' => '/' . trim(config('helios.path', 'helios'), '/'),
+            'apiPath' => '/' . trim(config('helios.path', 'helios'), '/') . '/api',
+        ]) !!};
+    </script>
+
     {{-- Load built Vite assets from package public directory --}}
     @heliosAssets
 </head>

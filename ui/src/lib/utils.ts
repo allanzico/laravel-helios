@@ -16,6 +16,7 @@ const badgeStatusMap: Record<string, BadgeVariant> = {
   info: 'default',
   running: 'secondary',
   starting: 'secondary',
+  retried: 'secondary',
   warning: 'secondary', 
   failed: 'destructive',
   error: 'destructive',

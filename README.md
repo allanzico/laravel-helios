@@ -2,11 +2,11 @@
 
 A lightweight, self-hosted monitoring tool for Laravel applications. Helios provides real-time monitoring of:
 
-- Request Performance
+- Slow and failed requests
 - Application Logs
 - Queued Jobs
 - Scheduled Tasks
-- Database Queries
+- Slow Database Queries
 - Health Checks
 - Error Tracking
 
@@ -18,6 +18,8 @@ A lightweight, self-hosted monitoring tool for Laravel applications. Helios prov
 - **Lightweight**: Minimal overhead on your application
 - **Self-hosted**: All data stays in your database
 - **Error Tracking**: Automatic error grouping and tracking with detailed stack traces
+- **Queue Actions**: Retry or forget failed queue jobs from the dashboard
+- **Scheduled Commands**: Run known scheduled tasks manually when enabled
 
 ## Requirements
 
@@ -50,17 +52,15 @@ This will create the following tables:
 - `helios_health_check_settings` - Health check configuration
 - `helios_errors` - Error tracking and grouping
 
-### 3. Sync Scheduled Tasks
+### 3. Open Helios
 
-After installation, sync your scheduled tasks to start monitoring them:
+**That's it!** Frontend assets are automatically inlined (similar to Laravel Horizon), so no asset publishing is required.
+
+Helios will try to discover scheduled tasks from Laravel's schedule automatically. If your app only exposes scheduled tasks through a console kernel, you can still sync them manually:
 
 ```bash
 php artisan helios:sync-tasks
 ```
-
-Run this command whenever you add or modify scheduled tasks in your application.
-
-**That's it!** Frontend assets are automatically inlined (similar to Laravel Horizon), so no asset publishing is required.
 
 > **Note:** If you're upgrading from an earlier version, clear your view cache: `php artisan view:clear`
 
@@ -81,12 +81,33 @@ http://localhost:8000/helios
 
 - **Overview**: Quick stats on failed jobs, errors, average response time, and slow queries
 - **Requests**: Monitor all HTTP requests with duration, status codes, and memory usage
-- **Jobs**: Track queued job execution, failures, and performance
-- **Queries**: View all database queries with execution time and bindings
-- **Scheduled Tasks**: Monitor cron jobs and scheduled tasks
+- **Jobs**: Track execution history and retry or forget failed queue jobs
+- **Queries**: View slow database queries with execution time and bindings
+- **Scheduled Tasks**: Monitor cron jobs and run scheduled commands manually
 - **Logs**: Browse and search application logs
 - **Health Checks**: Configure and monitor application health checks
 - **Errors**: Track and group application errors with detailed stack traces
+
+## Local Playground
+
+This repo includes a real Laravel playground app in `playground/` that installs Helios through a local Composer path repository.
+
+```bash
+bash scripts/playground.sh
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8001
+http://127.0.0.1:8001/helios
+```
+
+To generate sample requests, queries, logs, errors, and a failed queued job:
+
+```bash
+bash scripts/playground-demo.sh
+```
 
 ## Configuration
 
@@ -119,11 +140,48 @@ This creates `config/helios.php`:
 
 ```php
 return [
+    'enabled' => env('HELIOS_ENABLED', true),
+    'path' => env('HELIOS_PATH', 'helios'),
+
+    'middleware' => [
+        'web',
+        \Allanzico\LaravelHelios\Http\Middleware\Authorize::class,
+    ],
+
+    'allowed_environments' => ['local', 'testing'],
+    'gate' => 'viewHelios',
+
     'log_path' => storage_path('logs'),
+
+    'watchers' => [
+        'requests' => [
+            'enabled' => env('HELIOS_REQUESTS_ENABLED', true),
+            'slow_ms' => (float) env('HELIOS_SLOW_REQUEST_MS', 1000),
+            'sample_rate' => (float) env('HELIOS_REQUEST_SAMPLE_RATE', 0.05),
+        ],
+        'queries' => [
+            'enabled' => env('HELIOS_QUERIES_ENABLED', true),
+            'slow_ms' => (float) env('HELIOS_SLOW_QUERY_MS', 100),
+            'sample_rate' => (float) env('HELIOS_QUERY_SAMPLE_RATE', 0.0),
+        ],
+    ],
+
+    'retention_days' => (int) env('HELIOS_RETENTION_DAYS', 7),
+
     'error_tracking' => [
         'enabled' => env('HELIOS_ERROR_TRACKING_ENABLED', true),
     ],
 ];
+```
+
+### Production Access
+
+In production, define a `viewHelios` gate in your application:
+
+```php
+use Illuminate\Support\Facades\Gate;
+
+Gate::define('viewHelios', fn ($user = null) => $user?->email === 'you@example.com');
 ```
 
 ### Environment Variables
@@ -131,28 +189,25 @@ return [
 Add to your `.env` file:
 
 ```env
+# Enable/disable all of Helios
+HELIOS_ENABLED=true
+
+# Move the dashboard path
+HELIOS_PATH=helios
+
+# Tune collection
+HELIOS_SLOW_REQUEST_MS=1000
+HELIOS_SLOW_QUERY_MS=100
+HELIOS_REQUEST_SAMPLE_RATE=0.05
+HELIOS_QUERY_SAMPLE_RATE=0
+
 # Enable/disable error tracking
 HELIOS_ERROR_TRACKING_ENABLED=true
 ```
 
 ## Error Tracking
 
-To enable automatic error tracking, extend the Helios exception handler in your `app/Exceptions/Handler.php`:
-
-```php
-<?php
-
-namespace App\Exceptions;
-
-use Allanzico\LaravelHelios\Exceptions\HeliosExceptionHandler;
-
-class Handler extends HeliosExceptionHandler
-{
-    // Your existing exception handler code...
-}
-```
-
-This will automatically track all exceptions in the Helios dashboard with grouping by error hash.
+Automatic error tracking is registered by the package service provider. You do not need to replace your application's exception handler.
 
 ## Purging Old Data
 
@@ -167,6 +222,13 @@ use Allanzico\LaravelHelios\Models\HeliosJob;
 HeliosRequest::where('created_at', '<', now()->subDays(7))->delete();
 HeliosQuery::where('created_at', '<', now()->subDays(7))->delete();
 HeliosJob::where('started_at', '<', now()->subDays(7))->delete();
+```
+
+Or use the built-in prune command:
+
+```bash
+php artisan helios:prune
+php artisan helios:prune --days=14
 ```
 
 ## Troubleshooting

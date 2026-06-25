@@ -8,7 +8,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { JobShowModal } from './show-modal.tsx';
 import { formatDistanceToNow } from 'date-fns';
 import { Job } from '@/api/types';
-import { RefreshCw } from 'lucide-react';
+import { AlertTriangle, ListTodo, RefreshCw } from 'lucide-react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -17,6 +17,7 @@ import {
   PaginationState,
 } from '@tanstack/react-table';
 import { StatusBadge } from '@/components/app/status-badge.tsx';
+import { StatCard } from '@/components/app/stat-card';
 
 const columns: ColumnDef<Job>[] = [
   {
@@ -51,9 +52,9 @@ export function JobIndex() {
   const defaultData = useMemo(() => [] as Job[], []);
 
  const table = useReactTable({
-    data: data?.data ?? defaultData,
+    data: data?.jobs.data ?? defaultData,
     columns,
-    pageCount: data?.last_page ?? -1,
+    pageCount: data?.jobs.last_page ?? -1,
     state: { pagination: { pageIndex, pageSize } },
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
@@ -64,7 +65,11 @@ export function JobIndex() {
 
   return (
     <Dialog open={!!selectedJob} onOpenChange={(isOpen) => !isOpen && setSelectedJob(null)}>
-      <Card className="subtle-shadow">
+      <div className="grid gap-4 md:grid-cols-2">
+        <StatCard title="Pending Jobs" value={data?.summary.pending_jobs ?? 0} icon={ListTodo} />
+        <StatCard title="Failed Jobs" value={data?.summary.failed_jobs ?? 0} icon={AlertTriangle} />
+      </div>
+      <Card className="subtle-shadow mt-4">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -111,10 +116,10 @@ export function JobIndex() {
           </div>
           {data && (
             <Pagination
-              currentPage={data.current_page}
-              lastPage={data.last_page}
-              total={data.total}
-              perPage={data.per_page}
+              currentPage={data.jobs.current_page}
+              lastPage={data.jobs.last_page}
+              total={data.jobs.total}
+              perPage={data.jobs.per_page}
               onPageChange={(page) => setPagination({ pageIndex: page - 1, pageSize })}
             />
           )}

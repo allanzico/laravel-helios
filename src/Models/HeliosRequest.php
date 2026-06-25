@@ -23,4 +23,13 @@ class HeliosRequest extends Model
         'memory_mb',
         'created_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'duration_ms' => 'float',
+            'memory_mb' => 'float',
+            'created_at' => 'datetime',
+        ];
+    }
 }

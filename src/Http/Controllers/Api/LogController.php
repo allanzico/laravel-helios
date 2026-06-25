@@ -40,7 +40,7 @@ class LogController extends Controller
     public function destroy(string $fileName): JsonResponse
     {
         // Basic security to prevent directory traversal
-        if (str_contains($fileName, '..') || str_contains($fileName, '/')) {
+        if (str_contains($fileName, '..') || str_contains($fileName, '/') || str_contains($fileName, '\\')) {
             abort(400, 'Invalid filename.');
         }
         $filePath = config('helios.log_path') . '/' . $fileName;

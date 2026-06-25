@@ -13,11 +13,22 @@ export interface LogContent {
 export interface Job {
   id: string;
   name: string;
-  status: 'running' | 'processed' | 'failed';
-  payload: string;
+  status: 'running' | 'processed' | 'failed' | 'retried';
+  payload: unknown;
   exception: string | null;
   started_at: string;
   finished_at: string | null;
+  can_retry?: boolean;
+}
+
+export interface QueueSummary {
+  pending_jobs: number;
+  failed_jobs: number;
+}
+
+export interface JobsResponse {
+  jobs: PaginatedResponse<Job>;
+  summary: QueueSummary;
 }
 
 export interface LatestRun {
@@ -78,6 +89,7 @@ export interface PaginatedResponse<T> {
 export interface DashboardStats {
   failed_jobs_24h: number;
   errors_24h: number;
+  http_errors_24h: number;
   avg_duration_24h: number;
   avg_memory_24h: number;
   latest_failed_tasks: ScheduledTask[];

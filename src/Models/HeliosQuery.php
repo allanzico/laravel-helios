@@ -27,6 +27,7 @@ class HeliosQuery extends Model
         return [
             'bindings' => 'json',
             'time_ms' => 'float',
+            'created_at' => 'datetime',
         ];
     }
 }

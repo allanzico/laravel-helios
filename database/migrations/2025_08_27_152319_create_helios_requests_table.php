@@ -20,6 +20,10 @@ return new class extends Migration
             $table->integer('duration_ms');
             $table->float('memory_mb', 8, 2);
             $table->timestamp('created_at');
+
+            $table->index('status_code');
+            $table->index('duration_ms');
+            $table->index('created_at');
         });
     }
 

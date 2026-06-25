@@ -18,6 +18,9 @@ return new class extends Migration
             $table->json('bindings')->nullable();
             $table->float('time_ms');
             $table->timestamp('created_at');
+
+            $table->index('time_ms');
+            $table->index('created_at');
         });
     }
 

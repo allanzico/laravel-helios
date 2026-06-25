@@ -3,6 +3,7 @@
 namespace Allanzico\LaravelHelios\HealthChecks\Checks;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Allanzico\LaravelHelios\HealthChecks\HealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\HealthCheckResult;
 
@@ -26,8 +27,8 @@ class QueueHealthCheck extends HealthCheck
     public function run(): HealthCheckResult
     {
         try {
-            $pendingJobs = DB::table('jobs')->count();
-            $failedJobs = DB::table('failed_jobs')->count();
+            $pendingJobs = Schema::hasTable('jobs') ? DB::table('jobs')->count() : 0;
+            $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
 
             $this->shortSummary = "{$pendingJobs} pending, {$failedJobs} failed";
             $this->meta = [

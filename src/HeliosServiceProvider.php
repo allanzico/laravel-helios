@@ -3,13 +3,17 @@
 namespace Allanzico\LaravelHelios;
 
 use Illuminate\Foundation\Http\Kernel;
+use Illuminate\Contracts\Debug\ExceptionHandler as ExceptionHandlerContract;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Allanzico\LaravelHelios\Console\Prune;
 use Allanzico\LaravelHelios\Console\SyncTasks;
+use Allanzico\LaravelHelios\Http\Middleware\Authorize;
 use Allanzico\LaravelHelios\Http\Middleware\TrackRequestPerformance;
 use Allanzico\LaravelHelios\Providers\EventServiceProvider;
-use Allanzico\LaravelHelios\Support\Vite;
+use Allanzico\LaravelHelios\Services\ErrorHandler;
+use Throwable;
 
 class HeliosServiceProvider extends ServiceProvider
 {
@@ -18,6 +22,10 @@ class HeliosServiceProvider extends ServiceProvider
      */
     public function boot(Kernel $kernel): void
     {
+        if (! config('helios.enabled', true)) {
+            return;
+        }
+
         // Register Blade directive for Helios assets
         $this->registerBladeDirectives();
 
@@ -42,7 +50,9 @@ class HeliosServiceProvider extends ServiceProvider
         // Load views
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'helios');
 
-        $kernel->appendMiddlewareToGroup('web', TrackRequestPerformance::class);
+        if (config('helios.watchers.requests.enabled', true)) {
+            $kernel->appendMiddlewareToGroup('web', TrackRequestPerformance::class);
+        }
         
         // Load the routes
         $this->registerRoutes();
@@ -53,15 +63,20 @@ class HeliosServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
-        Route::middleware('api')
-             ->prefix('helios/api')
+        $path = trim(config('helios.path', 'helios'), '/');
+        $middleware = config('helios.middleware', ['web', Authorize::class]);
+
+        Route::domain(config('helios.domain'))
+             ->middleware($middleware)
+             ->prefix("{$path}/api")
              ->as('helios.api.')
              ->group(function () {
                  $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
              });
 
-        Route::middleware('web')
-             ->prefix('helios')
+        Route::domain(config('helios.domain'))
+             ->middleware($middleware)
+             ->prefix($path)
              ->as('helios.')
              ->group(function () {
                  $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
@@ -77,17 +92,22 @@ class HeliosServiceProvider extends ServiceProvider
             __DIR__.'/../config/helios.php', 'helios'
         );
 
-        $this->app->register(EventServiceProvider::class);
+        if (config('helios.enabled', true)) {
+            $this->app->register(EventServiceProvider::class);
+        }
         
         // Register middleware
         $this->app->singleton(TrackRequestPerformance::class);
+        $this->app->singleton(Authorize::class);
         
         // Register services
         $this->registerServices();
+        $this->registerExceptionTracking();
         
         // Register commands
         if ($this->app->runningInConsole()) {
             $this->commands([
+                Prune::class,
                 SyncTasks::class,
             ]);
         }
@@ -106,6 +126,23 @@ class HeliosServiceProvider extends ServiceProvider
          // Register ErrorHandler as singleton
         $this->app->singleton(\Allanzico\LaravelHelios\Services\ErrorHandler::class, function ($app) {
             return new \Allanzico\LaravelHelios\Services\ErrorHandler();
+        });
+    }
+
+    protected function registerExceptionTracking(): void
+    {
+        if (! config('helios.watchers.errors.enabled', config('helios.error_tracking.enabled', true))) {
+            return;
+        }
+
+        $this->app->afterResolving(ExceptionHandlerContract::class, function ($handler) {
+            if (! method_exists($handler, 'reportable')) {
+                return;
+            }
+
+            $handler->reportable(function (Throwable $exception): void {
+                app(ErrorHandler::class)->report($exception);
+            });
         });
     }
 

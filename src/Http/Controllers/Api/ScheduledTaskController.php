@@ -6,60 +6,98 @@ use Cron\CronExpression;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Console\Scheduling\Schedule;
 use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
 use Allanzico\LaravelHelios\Models\HeliosTaskDefinition;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class ScheduledTaskController extends Controller
 {
-public function index(): JsonResponse
-{
-    $definedTasks = HeliosTaskDefinition::all()->map(function ($taskDefinition) {
-        $signature = $this->extractCommandSignature($taskDefinition->command);
+    public function index(): JsonResponse
+    {
+        $this->syncDiscoveredTasks();
 
-        // Get the latest COMPLETED run for THIS specific command
-        $latestRun = HeliosScheduledTask::query()
-            ->where('command', $taskDefinition->command)
-            ->whereNotNull('finished_at')
-            ->orderBy('finished_at', 'desc')
-            ->first();
+        $definedTasks = HeliosTaskDefinition::all()->map(function ($taskDefinition) {
+            $signature = $this->extractCommandSignature($taskDefinition->command);
 
-        $result = [
-            // Task Definition fields
-            'command' => $taskDefinition->command,
-            'signature' => $signature,
-            'expression' => $taskDefinition->expression,
-            'description' => $taskDefinition->description,
-            'next_run_at' => (new CronExpression($taskDefinition->expression))->getNextRunDate()->format('c'),
-        ];
+            // Get the latest COMPLETED run for THIS specific command
+            $latestRun = HeliosScheduledTask::query()
+                ->where('command', $taskDefinition->command)
+                ->whereNotNull('finished_at')
+                ->orderBy('finished_at', 'desc')
+                ->first();
 
-        // Add latest run details if it exists
-        if ($latestRun) {
-            $result['latest_run'] = [
-                'id' => $latestRun->id,
-                'status' => $latestRun->status,
-                'started_at' => $latestRun->started_at?->format('c'),
-                'finished_at' => $latestRun->finished_at?->format('c'),
-                'runtime_ms' => $latestRun->runtime_ms,
-                'output' => $latestRun->output,
-                'exit_code' => $this->extractExitCode($latestRun->output, $latestRun->status),
-                'triggered_by' => $latestRun->triggered_by ?? 'scheduler',
+            $result = [
+                // Task Definition fields
+                'command' => $taskDefinition->command,
+                'signature' => $signature,
+                'expression' => $taskDefinition->expression,
+                'description' => $taskDefinition->description,
+                'next_run_at' => (new CronExpression($taskDefinition->expression))->getNextRunDate()->format('c'),
             ];
-        } else {
-            $result['latest_run'] = null;
+
+            // Add latest run details if it exists
+            if ($latestRun) {
+                $result['latest_run'] = [
+                    'id' => $latestRun->id,
+                    'status' => $latestRun->status,
+                    'started_at' => $latestRun->started_at?->format('c'),
+                    'finished_at' => $latestRun->finished_at?->format('c'),
+                    'runtime_ms' => $latestRun->runtime_ms,
+                    'output' => $latestRun->output,
+                    'exit_code' => $this->extractExitCode($latestRun->output, $latestRun->status),
+                    'triggered_by' => $latestRun->triggered_by ?? 'scheduler',
+                ];
+            } else {
+                $result['latest_run'] = null;
+            }
+
+            return $result;
+        });
+
+        return response()->json(['tasks' => $definedTasks]);
+    }
+
+    protected function syncDiscoveredTasks(): void
+    {
+        try {
+            $events = collect(app(Schedule::class)->events())
+                ->filter(fn ($event) => ! empty($event->command));
+
+            if ($events->isEmpty()) {
+                return;
+            }
+
+            $definedTasks = $events->mapWithKeys(function ($event) {
+                return [$event->command => [
+                    'command' => $event->command,
+                    'expression' => $event->expression,
+                    'description' => $event->description,
+                ]];
+            });
+
+            HeliosTaskDefinition::query()
+                ->whereNotIn('command', $definedTasks->keys())
+                ->delete();
+
+            foreach ($definedTasks as $task) {
+                HeliosTaskDefinition::updateOrCreate(
+                    ['command' => $task['command']],
+                    $task
+                );
+            }
+        } catch (Throwable) {
+            // Some apps only expose the schedule from the console kernel. The
+            // helios:sync-tasks command remains available for those cases.
         }
-
-        return $result;
-    });
-
-    return response()->json(['tasks' => $definedTasks]);
-}
+    }
 
     public function run(Request $request): StreamedResponse
     {
+        abort_unless(config('helios.watchers.schedule.allow_manual_runs', true), 403, 'Manual scheduled task runs are disabled.');
+
         $validated = $request->validate(['signature' => 'required|string']);
         $signature = $validated['signature'];
 
@@ -141,7 +179,9 @@ public function index(): JsonResponse
     private function sendSseMessage(string $data): void
     {
         echo "data: " . json_encode($data) . "\n\n";
-        ob_flush();
+        if (ob_get_level() > 0) {
+            ob_flush();
+        }
         flush();
     }
 

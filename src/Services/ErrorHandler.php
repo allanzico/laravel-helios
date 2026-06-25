@@ -10,6 +10,10 @@ class ErrorHandler
 {
     public function report(Throwable $exception, ?array $context = null): void
     {
+        if (! config('helios.watchers.errors.enabled', config('helios.error_tracking.enabled', true))) {
+            return;
+        }
+
         try {
             // Generate a unique hash for grouping similar errors
             $hash = $this->generateErrorHash($exception);
@@ -35,12 +39,12 @@ class ErrorHandler
                     'trace' => $this->formatStackTrace($exception),
                     'level' => $this->determineErrorLevel($exception),
                     'environment' => app()->environment(),
-                    'url' => request()->fullUrl(),
-                    'method' => request()->method(),
+                    'url' => $this->request()?->fullUrl(),
+                    'method' => $this->request()?->method(),
                     'request_data' => $this->getRequestData(),
                     'user_id' => Auth::id(),
-                    'ip_address' => request()->ip(),
-                    'user_agent' => request()->userAgent(),
+                    'ip_address' => $this->request()?->ip(),
+                    'user_agent' => $this->request()?->userAgent(),
                     'first_seen_at' => now(),
                     'last_seen_at' => now(),
                 ]);
@@ -104,10 +108,25 @@ class ErrorHandler
 
     protected function getRequestData(): string
     {
+        $request = $this->request();
+
+        if (! $request) {
+            return json_encode([]);
+        }
+
         $data = [
-            'query' => request()->query(),
-            'body' => request()->except(['password', 'password_confirmation', 'token']),
-            'headers' => $this->sanitizeHeaders(request()->headers->all()),
+            'query' => $request->query(),
+            'body' => $request->except([
+                'password',
+                'password_confirmation',
+                'current_password',
+                'token',
+                'api_token',
+                'access_token',
+                'refresh_token',
+                'secret',
+            ]),
+            'headers' => $this->sanitizeHeaders($request->headers->all()),
         ];
 
         return json_encode($data);
@@ -124,5 +143,10 @@ class ErrorHandler
         }
 
         return $headers;
+    }
+
+    protected function request(): ?\Illuminate\Http\Request
+    {
+        return app()->bound('request') ? request() : null;
     }
 }

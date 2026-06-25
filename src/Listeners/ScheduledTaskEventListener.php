@@ -8,36 +8,46 @@ use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Events\Dispatcher;
 use Allanzico\LaravelHelios\Models\HeliosScheduledTask;
+use Throwable;
 
 class ScheduledTaskEventListener
 {
     public function handleTaskStarting(ScheduledTaskStarting $event): void
     {
-        HeliosScheduledTask::create([
-            'command' => $event->task->command,
-            'expression' => $event->task->expression,
-            'status' => 'starting',
-            'started_at' => now(),
-            'triggered_by' => 'scheduler', // Mark as scheduler-triggered
-        ]);
+        try {
+            HeliosScheduledTask::create([
+                'command' => $event->task->command,
+                'expression' => $event->task->expression,
+                'status' => 'starting',
+                'started_at' => now(),
+                'triggered_by' => 'scheduler',
+            ]);
+        } catch (Throwable) {
+        }
     }
 
     public function handleTaskFinished(ScheduledTaskFinished $event): void
     {
-        $this->findTask($event->task)?->update([
-            'status' => 'finished',
-            'finished_at' => now(),
-            'runtime_ms' => $event->runtime,
-        ]);
+        try {
+            $this->findTask($event->task)?->update([
+                'status' => 'finished',
+                'finished_at' => now(),
+                'runtime_ms' => $event->runtime,
+            ]);
+        } catch (Throwable) {
+        }
     }
 
     public function handleTaskFailed(ScheduledTaskFailed $event): void
     {
-        $this->findTask($event->task)?->update([
-            'status' => 'failed',
-            'finished_at' => now(),
-            'output' => (string) $event->exception,
-        ]);
+        try {
+            $this->findTask($event->task)?->update([
+                'status' => 'failed',
+                'finished_at' => now(),
+                'output' => (string) $event->exception,
+            ]);
+        } catch (Throwable) {
+        }
     }
 
     /**

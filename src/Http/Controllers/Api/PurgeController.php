@@ -17,6 +17,7 @@ class PurgeController extends Controller
                 'helios_requests',
                 'helios_queries',
                 'helios_scheduled_tasks',
+                'helios_errors',
             ])]
         ]);
 

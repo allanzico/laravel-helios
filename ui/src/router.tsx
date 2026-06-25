@@ -3,7 +3,6 @@ import {
     createRoute,
     Router,
 } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
 import App from './app';
 import { LogIndex } from './pages/logs';
 import { LogShow } from './pages/logs/show';
@@ -16,14 +15,10 @@ import { HealthChecksIndex } from './pages/health';
 import { HealthCheckSettings } from './pages/health/settings';
 import { ErrorsIndex } from './pages/errors';
 import { ErrorDetail } from './pages/errors/show';
+import { heliosBasePath } from './api/client';
 
 const rootRoute = createRootRoute({
-    component: () => (
-        <>
-            <App />
-            <TanStackRouterDevtools />
-        </>
-    ),
+    component: App,
 });
 
 // Connect the real page components to their respective routes
@@ -77,7 +72,7 @@ const routeTree = rootRoute.addChildren([
 // Create and export the router instance
 export const router = new Router({
     routeTree,
-    basepath: '/helios',
+    basepath: heliosBasePath(),
 });
 
 // Register the router's types for auto-completion and type-safety

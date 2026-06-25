@@ -19,6 +19,9 @@ return new class extends Migration
             $table->longText('exception')->nullable();
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
+
+            $table->index(['status', 'started_at']);
+            $table->index('finished_at');
         });
     }
 

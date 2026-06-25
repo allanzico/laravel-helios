@@ -1,23 +1,11 @@
 {
   "index.html": {
-    "file": "assets/index-X5LwUTwA.js",
+    "file": "assets/index-BICcsrE6.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
-    "dynamicImports": [
-      "node_modules/@tanstack/router-devtools-core/dist/esm/FloatingTanStackRouterDevtools.js"
-    ],
     "css": [
-      "assets/index-DaEGAlsv.css"
-    ]
-  },
-  "node_modules/@tanstack/router-devtools-core/dist/esm/FloatingTanStackRouterDevtools.js": {
-    "file": "assets/FloatingTanStackRouterDevtools-Dt5e2gcD.js",
-    "name": "FloatingTanStackRouterDevtools",
-    "src": "node_modules/@tanstack/router-devtools-core/dist/esm/FloatingTanStackRouterDevtools.js",
-    "isDynamicEntry": true,
-    "imports": [
-      "index.html"
+      "assets/index-2u2qwodZ.css"
     ]
   }
 }

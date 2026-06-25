@@ -4,15 +4,11 @@ namespace Allanzico\LaravelHelios\Services;
 
 use Allanzico\LaravelHelios\Enums\HealthStatus;
 use Allanzico\LaravelHelios\HealthChecks\Checks\ApplicationHealthCheck;
-use Allanzico\LaravelHelios\HealthChecks\Checks\CacheHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\DatabaseHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\DiskSpaceHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\EnvironmentHealthCheck;
-use Allanzico\LaravelHelios\HealthChecks\Checks\HttpHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\QueueHealthCheck;
 use Allanzico\LaravelHelios\HealthChecks\Checks\RedisHealthCheck;
-use Allanzico\LaravelHelios\HealthChecks\Checks\SchedulerHealthCheck;
-use Allanzico\LaravelHelios\HealthChecks\Checks\StorageHealthCheck;
 use Allanzico\LaravelHelios\Models\HeliosHealthCheckSetting;
 
 class HealthCheckService
@@ -20,14 +16,10 @@ class HealthCheckService
     protected array $availableChecks = [
         // System & Server Checks
         ApplicationHealthCheck::class,
-        HttpHealthCheck::class,
-        SchedulerHealthCheck::class,
         
         // Infrastructure Checks
         DatabaseHealthCheck::class,
         RedisHealthCheck::class,
-        CacheHealthCheck::class,
-        StorageHealthCheck::class,
         
         // Resource Checks
         DiskSpaceHealthCheck::class,
@@ -59,14 +51,10 @@ class HealthCheckService
         $categories = [
             'System & Server' => [
                 ApplicationHealthCheck::class,
-                HttpHealthCheck::class,
-                SchedulerHealthCheck::class,
             ],
             'Infrastructure' => [
                 DatabaseHealthCheck::class,
                 RedisHealthCheck::class,
-                CacheHealthCheck::class,
-                StorageHealthCheck::class,
             ],
             'Resources' => [
                 DiskSpaceHealthCheck::class,

@@ -16,7 +16,7 @@ export function DashboardIndex() {
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard title="Failed Jobs (24h)" value={data?.failed_jobs_24h ?? 0} icon={ServerCrash} />
-        <StatCard title="Errors (4xx/5xx)" value={data?.errors_24h ?? 0} icon={AlertTriangle} />
+        <StatCard title="Errors (24h)" value={data?.errors_24h ?? data?.http_errors_24h ?? 0} icon={AlertTriangle} />
         <StatCard title="Avg. Duration" value={`${data?.avg_duration_24h ?? 0}ms`} icon={Zap} />
         <StatCard title="Avg. Memory" value={`${data?.avg_memory_24h ?? 0} MB`} icon={Clock} />
       </div>

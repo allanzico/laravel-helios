@@ -8,6 +8,7 @@ import { StatusBadge } from '@/components/app/status-badge.tsx';
 import { format, formatDistanceToNow, parseISO } from 'date-fns';
 import { PlayCircle, ChevronDown, Clock, Terminal, CheckCircle2, XCircle, RefreshCw } from 'lucide-react';
 import { ScheduledTask } from '@/api/types';
+import { csrfToken, heliosApi } from '@/api/client';
 
 export function ScheduledTaskIndex() {
   const queryClient = useQueryClient();
@@ -35,7 +36,14 @@ export function ScheduledTaskIndex() {
     setOpenOutputs(prev => new Set(prev).add(signature));
 
     try {
-      const response = await fetch(`/helios/api/scheduled-tasks/run?signature=${encodeURIComponent(signature)}`);
+      const response = await fetch(heliosApi('scheduled-tasks/run'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': csrfToken(),
+        },
+        body: JSON.stringify({ signature }),
+      });
 
       if (!response.ok) {
         const errorText = await response.text();

@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Allanzico\LaravelHelios\Models\HeliosTaskDefinition;
+use ReflectionMethod;
 
 class SyncTasks extends Command
 {
@@ -16,9 +17,10 @@ class SyncTasks extends Command
     {
         $this->info('Syncing scheduled tasks with Helios...');
 
-        // Use reflection to access the protected "schedule" method on the Kernel
-        $scheduleMethod = (new \ReflectionMethod($kernel, 'schedule'));
-        $scheduleMethod->invoke($kernel, $schedule);
+        if (empty($schedule->events()) && method_exists($kernel, 'schedule')) {
+            $scheduleMethod = new ReflectionMethod($kernel, 'schedule');
+            $scheduleMethod->invoke($kernel, $schedule);
+        }
 
         $definedTasks = collect($schedule->events())->map(function ($event) {
             if (empty($event->command)) return null;

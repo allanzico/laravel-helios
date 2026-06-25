@@ -1,11 +1,11 @@
-export const purgeTable = async (table: string): Promise<void> => {
-  const csrfToken = (document.querySelector('meta[name="csrf-token"]') as HTMLMetaElement)?.content;
+import { csrfToken, heliosApi } from './client';
 
-  const response = await fetch('/helios/api/purge', {
+export const purgeTable = async (table: string): Promise<void> => {
+  const response = await fetch(heliosApi('purge'), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-CSRF-TOKEN': csrfToken,
+      'X-CSRF-TOKEN': csrfToken(),
     },
     body: JSON.stringify({ table }),
   });

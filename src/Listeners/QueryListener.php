@@ -19,7 +19,11 @@ class QueryListener
      */
     public function handle(QueryExecuted $event): void
     {
-        if (self::$disabled) {
+        if (self::$disabled || ! config('helios.watchers.queries.enabled', true)) {
+            return;
+        }
+
+        if (! $this->shouldRecord($event)) {
             return;
         }
 
@@ -27,16 +31,6 @@ class QueryListener
             self::$disabled = true;
 
             if (!Schema::hasTable('helios_queries')) {
-                return;
-            }
-
-            // Ignore queries from the queue worker polling for jobs or restart signals.
-            if (str_contains($event->sql, 'from "jobs"') || str_contains($event->sql, 'from "cache" where "key" in (?)')) {
-                return;
-            }
-
-            // We don't want to log queries that read from our own tables
-            if (str_contains($event->sql, '`helios_')) {
                 return;
             }
 
@@ -52,5 +46,41 @@ class QueryListener
         } finally {
             self::$disabled = false;
         }
+    }
+
+    protected function shouldRecord(QueryExecuted $event): bool
+    {
+        $sql = strtolower($event->sql);
+
+        if (str_contains($sql, 'helios_')) {
+            return false;
+        }
+
+        if (str_contains($sql, 'from "jobs"') || str_contains($sql, 'from `jobs`')) {
+            return false;
+        }
+
+        if (str_contains($sql, 'from "cache"') || str_contains($sql, 'from `cache`')) {
+            return false;
+        }
+
+        if ($event->time >= (float) config('helios.watchers.queries.slow_ms', 100)) {
+            return true;
+        }
+
+        return $this->sample((float) config('helios.watchers.queries.sample_rate', 0.0));
+    }
+
+    protected function sample(float $rate): bool
+    {
+        if ($rate <= 0) {
+            return false;
+        }
+
+        if ($rate >= 1) {
+            return true;
+        }
+
+        return mt_rand() / mt_getrandmax() <= $rate;
     }
 }

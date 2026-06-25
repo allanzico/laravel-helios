@@ -8,6 +8,7 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Allanzico\LaravelHelios\Models\HeliosJob;
+use Throwable;
 
 class JobEventListener
 {
@@ -16,13 +17,20 @@ class JobEventListener
      */
     public function handleJobProcessing(JobProcessing $event): void
     {
-        HeliosJob::create([
-            'id' => $event->job->uuid(),
-            'name' => $event->job->resolveName(),
-            'status' => 'running',
-            'payload' => $event->job->getRawBody(),
-            'started_at' => now(),
-        ]);
+        try {
+            HeliosJob::updateOrCreate(
+                ['id' => $event->job->uuid()],
+                [
+                    'name' => $event->job->resolveName(),
+                    'status' => 'running',
+                    'payload' => $event->job->getRawBody(),
+                    'exception' => null,
+                    'started_at' => now(),
+                    'finished_at' => null,
+                ]
+            );
+        } catch (Throwable) {
+        }
     }
 
     /**
@@ -44,16 +52,19 @@ class JobEventListener
     /**
      * Helper method to update the job's status.
      */
-    private function updateJobStatus(string $uuid, string $status, ?\Throwable $exception = null): void
+    private function updateJobStatus(string $uuid, string $status, ?Throwable $exception = null): void
     {
-        $heliosJob = HeliosJob::find($uuid);
+        try {
+            $heliosJob = HeliosJob::find($uuid);
 
-        if ($heliosJob) {
-            $heliosJob->update([
-                'status' => $status,
-                'exception' => $exception?->getMessage(),
-                'finished_at' => now(),
-            ]);
+            if ($heliosJob) {
+                $heliosJob->update([
+                    'status' => $status,
+                    'exception' => $exception?->getMessage(),
+                    'finished_at' => now(),
+                ]);
+            }
+        } catch (Throwable) {
         }
     }
 

@@ -20,7 +20,11 @@ return new class extends Migration
             $table->timestamp('started_at');
             $table->timestamp('finished_at')->nullable();
             $table->float('runtime_ms')->nullable();
-            $table->string('triggered_by')->after('status')->default('unknown');
+            $table->string('triggered_by')->default('unknown');
+
+            $table->index(['status', 'started_at']);
+            $table->index('finished_at');
+            $table->index('command');
         });
     }
 

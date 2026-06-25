@@ -41,6 +41,10 @@ class LogViewerService
      */
     public function getLogContent(string $fileName): ?string
     {
+        if (str_contains($fileName, '..') || str_contains($fileName, '/') || str_contains($fileName, '\\')) {
+            return null;
+        }
+
         $filePath = config('helios.log_path') . '/' . $fileName;
 
         if (!File::exists($filePath)) {
