@@ -13,14 +13,18 @@ type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
 const badgeStatusMap: Record<string, BadgeVariant> = {
   processed: 'default',
   finished: 'default',
-  info: 'default',
+  ok: 'success',
+  requested: 'secondary',
+  started: 'secondary',
   running: 'secondary',
   starting: 'secondary',
   retried: 'secondary',
-  warning: 'secondary', 
+  info: 'info',
+  warning: 'warning',
   failed: 'destructive',
   error: 'destructive',
   critical: 'destructive',
+  crashed: 'destructive',
   skipped: 'outline',
   debug: 'outline',
 };
@@ -34,7 +38,7 @@ type ButtonVariant = VariantProps<typeof buttonVariants>['variant'];
 const buttonStatusMap: Record<string, ButtonVariant> = {
     error: 'destructive',
     warning: 'warning',
-    info: 'default',
+    info: 'info',
     debug: 'outline'
 };
 

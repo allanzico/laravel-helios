@@ -94,7 +94,7 @@ export function JobShowModal({ job }: JobShowModalProps) {
         {job.exception && (
             <div className="mb-4">
                 <h3 className="font-bold mb-2">Exception</h3>
-                <pre className="p-2 bg-muted rounded-md whitespace-pre-wrap break-words font-mono text-red-500">{job.exception}</pre>
+                <pre className="p-2 bg-muted rounded-md whitespace-pre-wrap break-words font-mono text-destructive">{job.exception}</pre>
             </div>
         )}
         <div>

@@ -20,7 +20,7 @@ export function LogIndex() {
   const { data: logs, isLoading, isError } = useLogsQuery();
 
   if (isLoading) return <p>Loading logs...</p>;
-  if (isError) return <p className="text-red-500">Failed to fetch logs.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch logs.</p>;
 
   return (
     <Card>

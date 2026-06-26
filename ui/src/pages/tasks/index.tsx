@@ -167,7 +167,7 @@ export function ScheduledTaskIndex() {
   };
 
   if (isLoading) return <p>Loading scheduled tasks...</p>;
-  if (isError) return <p className="text-red-500">Failed to fetch tasks.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch tasks.</p>;
 
   return (
     <Card className="subtle-shadow">
@@ -255,7 +255,7 @@ export function ScheduledTaskIndex() {
                                 {/* Metrics */}
                                 <div className="flex items-center gap-4 text-sm">
                                   <div className="flex items-center gap-1.5">
-                                    <Clock className="h-3.5 w-3.5 text-blue-500" />
+                                    <Clock className="h-3.5 w-3.5 text-info" />
                                     <span className="text-muted-foreground">Runtime:</span>
                                     <span className="font-mono font-medium">{getTaskRuntime(task)}</span>
                                   </div>
@@ -264,24 +264,24 @@ export function ScheduledTaskIndex() {
                                     <div className="flex items-center gap-1.5">
                                       {task.latest_run.exit_code === 0 ? (
                                         <>
-                                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                                          <span className="text-green-600 dark:text-green-400 font-medium">Success</span>
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                                          <span className="text-success font-medium">Success</span>
                                         </>
                                       ) : (
                                         <>
-                                          <XCircle className="h-3.5 w-3.5 text-red-500" />
-                                          <span className="text-red-600 dark:text-red-400 font-medium">
+                                          <XCircle className="h-3.5 w-3.5 text-destructive" />
+                                          <span className="text-destructive font-medium">
                                             Failed (Exit: {task.latest_run.exit_code})
                                           </span>
                                         </>
                                       )}
                                     </div>
                                   )}
-                                  
+
                                   {isRunning && (
                                     <div className="flex items-center gap-1.5">
-                                      <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
-                                      <span className="text-blue-600 dark:text-blue-400 font-medium">Running...</span>
+                                      <div className="h-2 w-2 bg-info rounded-full animate-pulse" />
+                                      <span className="text-info font-medium">Running...</span>
                                     </div>
                                   )}
                                 </div>
@@ -302,7 +302,7 @@ export function ScheduledTaskIndex() {
                                     <div key={i} className="leading-relaxed">{line}</div>
                                   ))}
                                   {isRunning && (
-                                    <div className="mt-2 text-blue-500 animate-pulse">▊</div>
+                                    <div className="mt-2 text-info animate-pulse">▊</div>
                                   )}
                                 </div>
                               </div>

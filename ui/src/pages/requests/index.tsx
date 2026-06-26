@@ -75,7 +75,7 @@ export function RequestIndex() {
   });
 
 
-  if (isError) return <p className="text-red-500">Failed to fetch requests.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch requests.</p>;
 
   return (
     <Dialog open={!!selectedRequest} onOpenChange={(isOpen) => !isOpen && setSelectedRequest(null)}>

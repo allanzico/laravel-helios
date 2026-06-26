@@ -107,6 +107,7 @@ export interface DashboardStats {
   avg_memory_24h: number;
   latest_failed_tasks: ScheduledTask[];
   latest_slow_queries: Query[];
+  recent_actions: RecentAction[];
 }
 
 export interface DashboardHealthSummary {
@@ -121,6 +122,15 @@ export interface DashboardHealthProblem {
   status: string;
   message: string;
   short_summary: string | null;
+}
+
+export interface RecentAction {
+  id: string;
+  action: string;
+  target_type: string | null;
+  target_id: string | null;
+  status: string;
+  created_at: string;
 }
 
 export interface ChartDataPoint {

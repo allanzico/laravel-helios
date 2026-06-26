@@ -62,7 +62,7 @@ export function JobIndex() {
     manualPagination: true,
   });
 
-  if (isError) return <p className="text-red-500">Failed to fetch jobs.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch jobs.</p>;
 
   return (
     <Dialog open={!!selectedJob} onOpenChange={(isOpen) => !isOpen && setSelectedJob(null)}>

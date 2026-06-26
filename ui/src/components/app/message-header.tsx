@@ -5,9 +5,9 @@ const headerVariants = cva('p-4 border-l-4', {
   variants: {
     variant: {
       default: 'border-transparent',
-      info: 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-700',
-      warning: 'bg-yellow-50 border-yellow-400 dark:bg-yellow-950 dark:border-yellow-700',
-      error: 'bg-red-50 border-red-500 dark:bg-red-950 dark:border-red-700',
+      info: 'bg-info/10 border-info',
+      warning: 'bg-warning/10 border-warning',
+      error: 'bg-destructive/10 border-destructive',
     },
   },
   defaultVariants: {
@@ -19,9 +19,9 @@ const iconVariants = cva('h-6 w-6 mr-3', {
     variants: {
         variant: {
             default: 'hidden',
-            info: 'text-blue-500',
-            warning: 'text-yellow-600',
-            error: 'text-red-600',
+            info: 'text-info',
+            warning: 'text-warning',
+            error: 'text-destructive',
         }
     },
     defaultVariants: {

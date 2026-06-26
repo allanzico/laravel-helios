@@ -4,6 +4,7 @@ namespace Allanzico\LaravelHelios\Http\Controllers\Api;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
+use Allanzico\LaravelHelios\Models\HeliosAction;
 use Allanzico\LaravelHelios\Models\HeliosError;
 use Allanzico\LaravelHelios\Models\HeliosJob;
 use Allanzico\LaravelHelios\Models\HeliosQuery;
@@ -62,6 +63,19 @@ class DashboardController extends Controller
                 ->orderByDesc('time_ms')
                 ->limit(5)
                 ->get(),
+            'recent_actions' => HeliosAction::query()
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get(['id', 'action', 'target_type', 'target_id', 'status', 'created_at'])
+                ->map(fn (HeliosAction $action) => [
+                    'id' => $action->id,
+                    'action' => $action->action,
+                    'target_type' => $action->target_type,
+                    'target_id' => $action->target_id,
+                    'status' => $action->status,
+                    'created_at' => $action->created_at,
+                ])
+                ->values(),
         ];
 
         return response()->json($stats);

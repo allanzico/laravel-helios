@@ -65,7 +65,7 @@ export function QueryIndex() {
     manualPagination: true,
   });
 
-  if (isError) return <p className="text-red-500">Failed to fetch queries.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch queries.</p>;
 
   return (
     <Card className="subtle-shadow">

@@ -2,15 +2,24 @@ import { useParams, useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useErrorQuery, useResolveErrorMutation, useIgnoreErrorMutation, useUnresolveErrorMutation, useDeleteErrorMutation } from '@/queries/errors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type badgeVariants } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, CheckCircle, EyeOff, RotateCcw, Trash2, AlertCircle, Clock, User, Globe, Monitor } from 'lucide-react';
 import { format } from 'date-fns';
+import type { VariantProps } from 'class-variance-authority';
 
-const statusConfig = {
-  unresolved: { label: 'Unresolved', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-  resolved: { label: 'Resolved', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-  ignored: { label: 'Ignored', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
+type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
+
+const statusBadgeVariants: Record<string, BadgeVariant> = {
+  unresolved: 'destructive',
+  resolved: 'success',
+  ignored: 'secondary',
+};
+
+const statusLabels: Record<string, string> = {
+  unresolved: 'Unresolved',
+  resolved: 'Resolved',
+  ignored: 'Ignored',
 };
 
 export function ErrorDetail() {
@@ -25,7 +34,8 @@ export function ErrorDetail() {
   if (isLoading) return <p>Loading error details...</p>;
   if (!error) return <p>Error not found</p>;
 
-  const statusCfg = statusConfig[error.status as keyof typeof statusConfig];
+  const statusVariant = statusBadgeVariants[error.status] ?? 'outline';
+  const statusLabel = statusLabels[error.status] ?? error.status;
 
   const handleResolve = async () => {
     try {
@@ -129,18 +139,18 @@ export function ErrorDetail() {
       {/* Error Overview */}
       <Card className={
         error.status === 'resolved'
-          ? "border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20"
+          ? "border-success/30 bg-muted/30"
           : error.status === 'ignored'
-          ? "border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/20"
+          ? "border-muted bg-muted/20"
           : ""
       }>
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="h-5 w-5 text-red-500" />
+                <AlertCircle className="h-5 w-5 text-destructive" />
                 <CardTitle>{error.type.split('\\').pop()}</CardTitle>
-                <Badge className={statusCfg.color}>{statusCfg.label}</Badge>
+                <Badge variant={statusVariant}>{statusLabel}</Badge>
                 <Badge variant="outline" className="capitalize">{error.level}</Badge>
                 {error.occurrences > 1 && (
                   <Badge variant="secondary">{error.occurrences} occurrences</Badge>

@@ -102,10 +102,10 @@ return [
 
         'schedule' => [
             'enabled' => env('HELIOS_SCHEDULE_ENABLED', true),
-            'allow_manual_runs' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', app()->environment(['local', 'testing'])),
+            'allow_manual_runs' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', false),
             'manual_allowlist' => env('HELIOS_SCHEDULE_MANUAL_ALLOWLIST')
                 ? array_filter(array_map('trim', explode(',', env('HELIOS_SCHEDULE_MANUAL_ALLOWLIST', ''))))
-                : (app()->environment(['local', 'testing']) ? ['*'] : []),
+                : [],
         ],
 
         'errors' => [
@@ -120,11 +120,11 @@ return [
     'retention_days' => (int) env('HELIOS_RETENTION_DAYS', 7),
 
     'actions' => [
-        'run_scheduled_tasks' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', app()->environment(['local', 'testing'])),
-        'retry_jobs' => env('HELIOS_ALLOW_JOB_RETRY', app()->environment(['local', 'testing'])),
+        'run_scheduled_tasks' => env('HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS', false),
+        'retry_jobs' => env('HELIOS_ALLOW_JOB_RETRY', false),
         'forget_jobs' => env('HELIOS_ALLOW_JOB_FORGET', false),
         'clear_logs' => env('HELIOS_ALLOW_LOG_CLEAR', false),
-        'purge_data' => env('HELIOS_ALLOW_PURGE_DATA', app()->environment(['local', 'testing'])),
+        'purge_data' => env('HELIOS_ALLOW_PURGE_DATA', false),
     ],
 
     'security' => [

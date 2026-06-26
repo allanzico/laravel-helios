@@ -157,13 +157,13 @@ export function HealthCheckSettings() {
           </div>
 
           {updateMutation.isSuccess && (
-            <p className="text-sm text-green-600 dark:text-green-400">
+            <p className="text-sm text-success">
               Settings saved successfully!
             </p>
           )}
 
           {updateMutation.isError && (
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="text-sm text-destructive">
               Failed to save settings. Please try again.
             </p>
           )}

@@ -22,7 +22,7 @@ export function RequestsChart() {
 
 
     if (isLoading) return <div>Loading Chart...</div>
-    if (isError) return <div className="text-red-500">Could not load chart data.</div>
+    if (isError) return <div className="text-destructive">Could not load chart data.</div>
 
     return (
         <ResponsiveContainer width="100%" height={300}>

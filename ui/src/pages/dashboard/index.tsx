@@ -6,12 +6,30 @@ import { StatusBadge } from '@/components/app/status-badge.tsx';
 import { AlertTriangle, CheckCircle2, Clock, ServerCrash, Zap } from 'lucide-react';
 import { RequestsChart } from '@/components/app/requests-chart.tsx';
 import { Badge } from '@/components/ui/badge';
+import { formatDistanceToNow } from 'date-fns';
+
+const formatActionName = (action: string) => (
+  action
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, letter => letter.toUpperCase())
+);
+
+const formatActionTarget = (targetType: string | null, targetId: string | null) => {
+  if (!targetType && !targetId) {
+    return 'No target';
+  }
+
+  return [
+    targetType?.replace(/_/g, ' '),
+    targetId,
+  ].filter(Boolean).join(' ');
+};
 
 export function DashboardIndex() {
   const { data, isLoading, isError } = useDashboardStatsQuery();
 
   if (isLoading) return <p>Loading dashboard...</p>;
-  if (isError) return <p className="text-red-500">Failed to load dashboard stats.</p>;
+  if (isError) return <p className="text-destructive">Failed to load dashboard stats.</p>;
 
   return (
     <div className="flex flex-col gap-6">
@@ -20,9 +38,9 @@ export function DashboardIndex() {
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div className="flex items-center gap-3">
               {data?.health?.overall_status === 'ok' ? (
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
               ) : (
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
+                <AlertTriangle className="h-5 w-5 text-warning" />
               )}
               <div>
                 <CardTitle>Operational Status</CardTitle>
@@ -70,7 +88,7 @@ export function DashboardIndex() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* LATEST FAILED TASKS */}
         <Card className="subtle-shadow">
           <CardHeader><CardTitle>Latest Failed Tasks</CardTitle></CardHeader>
@@ -86,6 +104,34 @@ export function DashboardIndex() {
                 ))}
               </TableBody>
             </Table>
+          </CardContent>
+        </Card>
+
+        <Card className="subtle-shadow">
+          <CardHeader><CardTitle>Recent Actions</CardTitle></CardHeader>
+          <CardContent>
+            {data?.recent_actions?.length ? (
+              <div className="grid gap-2">
+                {data.recent_actions.map(action => (
+                  <div key={action.id} className="flex items-start justify-between gap-3 rounded-md border px-3 py-2">
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-medium">{formatActionName(action.action)}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        {formatActionTarget(action.target_type, action.target_id)}
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <StatusBadge status={action.status} />
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(action.created_at), { addSuffix: true })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">No manual actions recorded.</p>
+            )}
           </CardContent>
         </Card>
 

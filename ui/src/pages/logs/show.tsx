@@ -37,7 +37,7 @@ export function LogShow() {
   }, [logLines, filterLevel]);
 
   if (isLoading) return <p>Loading log content...</p>;
-  if (isError) return <p className="text-red-500">Failed to fetch content for {fileName}.</p>;
+  if (isError) return <p className="text-destructive">Failed to fetch content for {fileName}.</p>;
 
   return (
     <Card className="subtle-shadow">

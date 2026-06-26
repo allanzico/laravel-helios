@@ -1,6 +1,7 @@
 <?php
 
 use App\Jobs\DemoFailingJob;
+use Allanzico\LaravelHelios\Services\ActionRecorder;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -29,8 +30,9 @@ Route::get('/', function () {
         <li><a href="/demo/slow-request">Create a slow request</a></li>
         <li><a href="/demo/error">Report a handled exception</a></li>
         <li><a href="/demo/jobs/fail">Dispatch and process a failing queued job</a></li>
+        <li><a href="/demo/action">Create a harmless audit action</a></li>
     </ul>
-    <p>Scheduled task demo: open <code>/helios/tasks</code> and run <code>demo:heartbeat</code>.</p>
+    <p>Scheduled task demo: open <code>/helios/tasks</code> to see <code>demo:heartbeat</code>. Manual runs are disabled by default; opt in with <code>HELIOS_ALLOW_MANUAL_SCHEDULE_RUNS=true</code> and an allowlist when testing that flow.</p>
 </body>
 </html>
 HTML;
@@ -73,4 +75,12 @@ Route::get('/demo/jobs/fail', function () {
         'message' => 'Dispatched and processed a failing job. Open /helios/jobs.',
         'queue_output' => trim(Artisan::output()),
     ]);
+});
+
+Route::get('/demo/action', function () {
+    app(ActionRecorder::class)->record('demo_action', 'playground', 'demo', 'finished', [
+        'source' => 'playground',
+    ]);
+
+    return 'Created a harmless audit action. Open /helios.';
 });

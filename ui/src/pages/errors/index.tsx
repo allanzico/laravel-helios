@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useErrorsQuery, useErrorStatsQuery } from '@/queries/errors';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Badge, type badgeVariants } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,17 +9,33 @@ import { Pagination } from '@/components/ui/pagination';
 import { AlertCircle, AlertTriangle, XCircle, Clock, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from '@tanstack/react-router';
+import type { VariantProps } from 'class-variance-authority';
+import type { LucideIcon } from 'lucide-react';
 
-const statusConfig = {
-  unresolved: { label: 'Unresolved', color: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' },
-  resolved: { label: 'Resolved', color: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' },
-  ignored: { label: 'Ignored', color: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200' },
+type BadgeVariant = VariantProps<typeof badgeVariants>['variant'];
+
+const statusBadgeVariants: Record<string, BadgeVariant> = {
+  unresolved: 'destructive',
+  resolved: 'success',
+  ignored: 'secondary',
 };
 
-const levelConfig = {
-  error: { icon: AlertCircle, color: 'text-red-500' },
-  critical: { icon: XCircle, color: 'text-red-700' },
-  warning: { icon: AlertTriangle, color: 'text-yellow-500' },
+const statusLabels: Record<string, string> = {
+  unresolved: 'Unresolved',
+  resolved: 'Resolved',
+  ignored: 'Ignored',
+};
+
+const levelIcons: Record<string, LucideIcon> = {
+  error: AlertCircle,
+  critical: XCircle,
+  warning: AlertTriangle,
+};
+
+const levelIconColors: Record<string, string> = {
+  error: 'text-destructive',
+  critical: 'text-destructive',
+  warning: 'text-warning',
 };
 
 export function ErrorsIndex() {
@@ -51,7 +67,7 @@ export function ErrorsIndex() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Unresolved</CardDescription>
-            <CardTitle className="text-3xl text-red-600">{stats?.unresolved || 0}</CardTitle>
+            <CardTitle className="text-3xl text-destructive">{stats?.unresolved || 0}</CardTitle>
           </CardHeader>
         </Card>
         
@@ -65,7 +81,7 @@ export function ErrorsIndex() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Critical</CardDescription>
-            <CardTitle className="text-3xl text-red-700">{stats?.critical || 0}</CardTitle>
+            <CardTitle className="text-3xl text-destructive">{stats?.critical || 0}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -139,9 +155,7 @@ export function ErrorsIndex() {
                   </TableHeader>
                   <TableBody>
                     {errors.map((error: any) => {
-                      const statusCfg = statusConfig[error.status as keyof typeof statusConfig];
-                      const levelCfg = levelConfig[error.level as keyof typeof levelConfig];
-                      const LevelIcon = levelCfg.icon;
+                      const LevelIcon = levelIcons[error.level] ?? AlertCircle;
 
                       return (
                         <TableRow
@@ -150,7 +164,7 @@ export function ErrorsIndex() {
                           onClick={() => navigate({ to: '/errors/$id', params: { id: error.id } })}
                         >
                           <TableCell>
-                            <LevelIcon className={`h-5 w-5 ${levelCfg.color}`} />
+                            <LevelIcon className={`h-5 w-5 ${levelIconColors[error.level] ?? 'text-muted-foreground'}`} />
                           </TableCell>
                           <TableCell className="font-medium">
                             <div className="flex flex-col">
@@ -169,7 +183,9 @@ export function ErrorsIndex() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={statusCfg.color}>{statusCfg.label}</Badge>
+                            <Badge variant={statusBadgeVariants[error.status] ?? 'outline'}>
+                              {statusLabels[error.status] ?? error.status}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             {error.occurrences > 1 ? (
